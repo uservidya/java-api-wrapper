@@ -1,11 +1,18 @@
 # java-api-wrapper
 
-OAuth2 SoundCloud API wrapper written in Java ([javadoc][]), extracted from the
-[SoundCloud Android][] codebase.
+OAuth2 SoundCloud API wrapper written in Java ([javadoc][]).
 
 It is simple to use and requires a minimum of external dependencies (compared to
 the OAuth1 wrapper) so should be easily embeddable in both desktop and
 mobile applications.
+
+## Android
+
+The wrapper works well on Android (although it has no dependencies on it),
+since it is an extraction from our [SoundCloud Android][] codebase. However, if
+all you want is to share sounds from your own application we recommend to check out the
+[Android Sharing Kit][] which delegates all the hard work to the SoundCloud
+app and makes use of Android's [intent][] framework.
 
 ## Usage
 
@@ -244,3 +251,6 @@ See LICENSE for details.
 [snapshots]: https://oss.sonatype.org/content/repositories/snapshots/com/soundcloud/java-api-wrapper/
 [releases]: https://oss.sonatype.org/content/repositories/releases/com/soundcloud/java-api-wrapper/
 [maven-central]: http://repo1.maven.org/maven2/com/soundcloud/java-api-wrapper/
+[Android Sharing Kit]: https://github.com/soundcloud/android-intent-sharing/wiki
+[android-token-sharing]: https://github.com/soundcloud/android-token-sharing
+[intent]: http://developer.android.com/reference/android/content/Intent.html
