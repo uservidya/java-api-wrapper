@@ -8,7 +8,7 @@ mobile applications.
 
 ## Android
 
-The wrapper works well on Android (although it has no dependencies on it),
+The wrapper works well on Android (although it has no dependencies on it)
 since it is an extraction from our [SoundCloud Android][] codebase. However, if
 all you want is to share sounds from your own application we recommend to check out the
 [Android Sharing Kit][] which delegates all the hard work to the SoundCloud
