@@ -22,6 +22,11 @@ import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.ConnectionKeepAliveStrategy;
+import org.apache.http.conn.params.ConnManagerPNames;
+import org.apache.http.conn.params.ConnManagerParams;
+import org.apache.http.conn.params.ConnPerRoute;
+import org.apache.http.conn.params.ConnPerRouteBean;
+import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.conn.routing.HttpRoutePlanner;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
@@ -32,6 +37,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRequestDirector;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.message.BasicHeader;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.protocol.BasicHttpProcessor;
@@ -83,11 +90,18 @@ public class ApiWrapper implements CloudAPI, Serializable {
     transient private HttpClient httpClient;
     transient private TokenListener listener;
 
+    private String mDefaultContentType;
+
+    public static final int BUFFER_SIZE = 8192;
+    /** Connection timeout */
+    public static final int TIMEOUT = 20 * 1000;
+    /** Keepalive timeout */
+    public static final long KEEPALIVE_TIMEOUT = 20 * 1000;
+    /* maximum number of connections allowed */
+    public static final int MAX_TOTAL_CONNECTIONS = 20;
+
     /** debug request details to stderr */
     public boolean debugRequests;
-
-
-    private String mDefaultContentType;
 
     /**
      * Constructs a new ApiWrapper instance.
@@ -251,13 +265,36 @@ public class ApiWrapper implements CloudAPI, Serializable {
         }
     }
 
-
-
     /**
-     * @return parameters used by the underlying HttpClient
+     * @return the default HttpParams
+     * @see <a href="http://developer.android.com/reference/android/net/http/AndroidHttpClient.html#newInstance(java.lang.String, android.content.Context)">
+     *      android.net.http.AndroidHttpClient#newInstance(String, Context)</a>
      */
     protected HttpParams getParams() {
-        return Http.defaultParams();
+        final HttpParams params = new BasicHttpParams();
+        HttpConnectionParams.setConnectionTimeout(params, TIMEOUT);
+        HttpConnectionParams.setSoTimeout(params, TIMEOUT);
+        HttpConnectionParams.setSocketBufferSize(params, BUFFER_SIZE);
+        ConnManagerParams.setMaxTotalConnections(params, MAX_TOTAL_CONNECTIONS);
+
+        // Turn off stale checking.  Our connections break all the time anyway,
+        // and it's not worth it to pay the penalty of checking every time.
+        HttpConnectionParams.setStaleCheckingEnabled(params, false);
+
+        // fix contributed by Bjorn Roche XXX check if still needed
+        params.setBooleanParameter("http.protocol.expect-continue", false);
+        params.setParameter(ConnManagerPNames.MAX_CONNECTIONS_PER_ROUTE, new ConnPerRoute() {
+            @Override
+            public int getMaxForRoute(HttpRoute httpRoute) {
+                if (env.isApiHost(httpRoute.getTargetHost())) {
+                    // there will be a lot of concurrent request to the API host
+                    return MAX_TOTAL_CONNECTIONS;
+                } else {
+                    return ConnPerRouteBean.DEFAULT_MAX_CONNECTIONS_PER_ROUTE;
+                }
+            }
+        });
+        return params;
     }
 
     /**
@@ -305,7 +342,7 @@ public class ApiWrapper implements CloudAPI, Serializable {
                     setKeepAliveStrategy(new ConnectionKeepAliveStrategy() {
                         @Override
                         public long getKeepAliveDuration(HttpResponse httpResponse, HttpContext httpContext) {
-                            return 20 * 1000; // milliseconds
+                            return KEEPALIVE_TIMEOUT;
                         }
                     });
 

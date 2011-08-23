@@ -22,6 +22,7 @@ public enum Env {
     Env(String resourceHost, String authResourceHost) {
         this.resourceHost = new HttpHost(resourceHost, -1, "http");
         sslResourceHost = new HttpHost(resourceHost, -1, "https");
+
         this.authResourceHost = new HttpHost(authResourceHost, -1, "http");
         sslAuthResourceHost = new HttpHost(authResourceHost, -1, "https");
     }
@@ -32,5 +33,11 @@ public enum Env {
 
     public HttpHost getAuthResourceHost(boolean secure) {
         return secure ? sslAuthResourceHost : authResourceHost;
+    }
+
+    public boolean isApiHost(HttpHost host) {
+        return ("http".equals(host.getSchemeName()) ||
+               "https".equals(host.getSchemeName())) &&
+                resourceHost.getHostName().equals(host.getHostName());
     }
 }
