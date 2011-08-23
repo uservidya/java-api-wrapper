@@ -98,7 +98,7 @@ public class ApiWrapper implements CloudAPI, Serializable {
     /** Keepalive timeout */
     public static final long KEEPALIVE_TIMEOUT = 20 * 1000;
     /* maximum number of connections allowed */
-    public static final int MAX_TOTAL_CONNECTIONS = 20;
+    public static final int MAX_TOTAL_CONNECTIONS = 10;
 
     /** debug request details to stderr */
     public boolean debugRequests;

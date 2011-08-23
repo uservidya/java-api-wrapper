@@ -1,13 +1,13 @@
 package com.soundcloud.api;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 import org.apache.http.HttpResponse;
 import org.json.JSONObject;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -16,6 +16,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
 
 public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
     // http://sandbox-soundcloud.com/you/apps/java-api-wrapper-test-app
@@ -184,8 +186,49 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
         assertThat(resp.getStatusLine().getStatusCode(), is(304) /* not-modified */);
     }
 
-    /*
-    @Test
+
+    @Test @Ignore
+    public void shouldSupportConcurrentConnectionsToApiHost() throws Exception {
+        login();
+
+        int num = 20;
+        final CyclicBarrier start = new CyclicBarrier(num, new Runnable() {
+            @Override
+            public void run() {
+                System.err.println("starting...");
+            }
+        });
+        final CyclicBarrier end = new CyclicBarrier(num);
+        while (num-- > 0) {
+            new Thread("t-"+num) {
+                @Override public void run() {
+                    try {
+                        start.await();
+                        System.err.println("running: "+toString());
+                        try {
+                            HttpResponse resp = api.get(Request.to(Endpoints.MY_DETAILS));
+                            resp.getEntity().consumeContent();
+                            assertThat(resp.getStatusLine().getStatusCode(), is(200));
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        } finally {
+                            System.err.println("finished: "+toString());
+                            end.await();
+                        }
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    } catch (BrokenBarrierException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }.start();
+        }
+        start.await();
+        end.await();
+        System.err.println("all threads finished");
+    }
+
+    @Test @Ignore
     public void updateMyDetails() throws Exception {
         Request updateMe = Request.to(MY_DETAILS).with(
                 Params.User.WEBSITE, "http://mywebsite.com")
@@ -194,7 +237,6 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
         HttpResponse resp = api.put(updateMe);
         assertThat(resp.getStatusLine().getStatusCode(), is(200));
     }
-    */
 
     @SuppressWarnings({"UnusedDeclaration"})
     private void writeResponse(HttpResponse resp, String file) throws IOException {
