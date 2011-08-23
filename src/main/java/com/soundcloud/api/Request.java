@@ -50,6 +50,7 @@ public class Request implements Iterable<NameValuePair> {
     private Token mToken;
     private String mResource;
     private TransferProgressListener listener;
+    private String mIfNoneMatch;
 
     /** Empty request */
     public Request() {}
@@ -85,6 +86,7 @@ public class Request implements Iterable<NameValuePair> {
         mToken = request.mToken;
         listener = request.listener;
         mParams = new ArrayList<NameValuePair>(request.mParams);
+        mIfNoneMatch = request.mIfNoneMatch;
         if (request.mFiles != null) mFiles = new HashMap<String, File>(request.mFiles);
     }
 
@@ -240,6 +242,16 @@ public class Request implements Iterable<NameValuePair> {
     }
 
     /**
+     * Conditional GET
+     * @param etag the etag to check for (If-None-Match: etag)
+     * @return this
+     */
+    public Request ifNoneMatch(String etag) {
+        mIfNoneMatch = etag;
+        return this;
+    }
+
+    /**
      * Builds a request with the given set of parameters and files.
      * @param method    the type of request to use
      * @param <T>       the type of request to use
@@ -285,6 +297,9 @@ public class Request implements Iterable<NameValuePair> {
 
                 request.setURI(URI.create(mResource));
             } else { // just plain GET/DELETE/...
+                if (mIfNoneMatch != null) {
+                    request.addHeader("If-None-Match", mIfNoneMatch);
+                }
                 request.setURI(URI.create(toUrl()));
             }
 

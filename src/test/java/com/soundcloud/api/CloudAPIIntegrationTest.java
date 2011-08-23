@@ -2,6 +2,7 @@ package com.soundcloud.api;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
 import org.apache.http.HttpResponse;
@@ -168,6 +169,19 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
         assertThat(
                 resp.getFirstHeader("Content-Type").getValue(),
                 containsString("application/xml"));
+    }
+
+
+    @Test
+    public void shouldSupportConditionalGets() throws Exception {
+        login();
+
+        HttpResponse resp = api.get(Request.to(Endpoints.MY_DETAILS));
+        String etag = Http.etag(resp);
+        assertNotNull(etag);
+
+        resp = api.get(Request.to(Endpoints.MY_DETAILS).ifNoneMatch(etag));
+        assertThat(resp.getStatusLine().getStatusCode(), is(304) /* not-modified */);
     }
 
     /*
