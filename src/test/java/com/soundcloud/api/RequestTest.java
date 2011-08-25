@@ -21,6 +21,7 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.net.URI;
 import java.util.IllegalFormatException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -214,6 +215,21 @@ public class RequestTest {
         assertThat(
             new Request("/foo?bar=baz&foo=bar").with("1", "2").toUrl(),
             equalTo("/foo?bar=baz&foo=bar&1=2"));
+    }
+
+    @Test
+    public void itShouldParseFullURI() throws Exception {
+        assertThat(
+             new Request(URI.create("http://foo.soundcloud.com/foo?bar=baz")).with("1", "2").toUrl(),
+             equalTo("/foo?bar=baz&1=2"));
+
+        assertThat(
+             new Request(URI.create("http://foo.soundcloud.com/foo")).with("1", "2").toUrl(),
+             equalTo("/foo?1=2"));
+
+        assertThat(
+             new Request(URI.create("http://foo.soundcloud.com/")).toUrl(),
+             equalTo("/"));
     }
 
     @Test

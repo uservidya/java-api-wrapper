@@ -20,6 +20,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -76,6 +77,15 @@ public class Request implements Iterable<NameValuePair> {
         } else {
             mResource = resource;
         }
+    }
+
+    /**
+     * constructs a a request from URI. the hostname+scheme will be ignored
+     * @param uri - the uri
+     */
+    public Request(URI uri) {
+        this(uri.getPath() == null ? "/" : uri.getPath() +
+            (uri.getQuery() == null ? "" : "?"+uri.getQuery()));
     }
 
     /**
