@@ -334,11 +334,11 @@ public class Request implements Iterable<NameValuePair> {
     @Override
     public String toString() {
         return "Request{" +
-                "params=" + mParams +
+                 "mResource='" + mResource + '\'' +
+                ", params=" + mParams +
                 ", files=" + mFiles +
                 ", entity=" + mEntity +
                 ", mToken=" + mToken +
-                ", mResource='" + mResource + '\'' +
                 ", listener=" + listener +
                 '}';
     }
