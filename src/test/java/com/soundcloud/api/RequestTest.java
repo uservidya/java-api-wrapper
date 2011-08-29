@@ -199,7 +199,7 @@ public class RequestTest {
     public void toStringShouldWork() throws Exception {
         assertThat(
                 new Request("/foo").with("1", "2").toString(),
-                equalTo("Request{params=[1=2], files=null, entity=null, mToken=null, mResource='/foo', listener=null}"));
+                equalTo("Request{mResource='/foo', params=[1=2], files=null, entity=null, mToken=null, listener=null}"));
     }
 
     @Test
