@@ -179,6 +179,7 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
         login();
 
         HttpResponse resp = api.get(Request.to(Endpoints.MY_DETAILS));
+        assertThat(resp.getStatusLine().getStatusCode(), is(200) /* ok */);
         String etag = Http.etag(resp);
         assertNotNull(etag);
 
