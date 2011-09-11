@@ -25,19 +25,19 @@ ApiWrapper wrapper = new ApiWrapper("client_id", "client_secret",
 
 Obtain a token:
 
-```
+```java
 wrapper.login("username", "password");
 ```
 
 Execute a request:
 
-```
+```java
 HttpResponse resp = wrapper.get(Request.to("/me"));
 ```
 
 Update a resource:
 
-```
+```java
 HttpResponse resp =
       wrapper.put(Request.to("/me")
              .with("user[full_name]", "Che Flute",
@@ -70,7 +70,7 @@ the authentication process. If you don't want to use them you can request
 non-expiring tokens by specifying the scope "non-expiring" when exchanging the
 tokens:
 
-```
+```java
 Token token = wrapper.login("username", "password", Token.SCOPE_NON_EXPIRING);
 ```
 
