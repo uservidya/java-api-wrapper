@@ -18,24 +18,32 @@ app and makes use of Android's [intent][] framework.
 
 Create a wrapper instance:
 
-    ApiWrapper wrapper = new ApiWrapper("client_id", "client_secret",
-                                        null, null, Env.LIVE);
+```
+ApiWrapper wrapper = new ApiWrapper("client_id", "client_secret",
+                                     null, null, Env.LIVE);
+```
 
 Obtain a token:
 
-    wrapper.login("username", "password");
+```
+wrapper.login("username", "password");
+```
 
 Execute a request:
 
-    HttpResponse resp = wrapper.get(Request.to("/me"));
+```
+HttpResponse resp = wrapper.get(Request.to("/me"));
+```
 
 Update a resource:
 
-    HttpResponse resp =
-          wrapper.put(Request.to("/me")
-                 .with("user[full_name]", "Che Flute",
-                       "user[website]",   "http://cheflute.com")
-                 .withFile("user[avatar_data]", new File("flute.jpg")));
+```
+HttpResponse resp =
+      wrapper.put(Request.to("/me")
+             .with("user[full_name]", "Che Flute",
+                   "user[website]",   "http://cheflute.com")
+             .withFile("user[avatar_data]", new File("flute.jpg")));
+```
 
 ## Migrating from OAuth1
 
@@ -62,7 +70,9 @@ the authentication process. If you don't want to use them you can request
 non-expiring tokens by specifying the scope "non-expiring" when exchanging the
 tokens:
 
-    Token token = wrapper.login("username", "password", Token.SCOPE_NON_EXPIRING);
+```
+Token token = wrapper.login("username", "password", Token.SCOPE_NON_EXPIRING);
+```
 
 The resulting token will be valid until revoked manually.
 
