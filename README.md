@@ -50,7 +50,9 @@ HttpResponse resp =
 If your app uses OAuth1 and already has users with access tokens
 you can easily migrate to OAuth2 without requiring anybody to reauthenticate:
 
-    Token token = wrapper.exchangeOAuth1Token("validoauth1token");
+```java
+Token token = wrapper.exchangeOAuth1Token("validoauth1token");
+```
 
 Note that this is specific to SoundCloud and not part of the current OAuth2
 draft.
@@ -78,8 +80,10 @@ The resulting token will be valid until revoked manually.
 
 For the `authorization_code` grant type you need to request the scope like so:
 
-    URI uri = wrapper.authorizationCodeUrl(Endpoints.CONNECT, Token.SCOPE_NON_EXPIRING);
-    // open uri in browser / WebView etc.
+```java
+URI uri = wrapper.authorizationCodeUrl(Endpoints.CONNECT, Token.SCOPE_NON_EXPIRING);
+// open uri in browser / WebView etc.
+```
 
 ## Requirements
 
