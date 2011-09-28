@@ -185,7 +185,7 @@ public class Request implements Iterable<NameValuePair> {
      * @return this
      */
     public Request withFile(String name, File file) {
-        return withFile(name, file, file.getName());
+        return file != null ? withFile(name, file, file.getName()) : this;
     }
 
     /**
