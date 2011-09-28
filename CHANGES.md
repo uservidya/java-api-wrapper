@@ -1,5 +1,6 @@
 ## 1.0.2 2011-08-xx
 
+  * Support httpmime-4.1.x (GH-2)
   * Support for conditional GETs
   * Changed the handling of max connections per route
   * Added some endpoints
