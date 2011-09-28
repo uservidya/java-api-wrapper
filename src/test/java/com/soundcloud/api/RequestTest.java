@@ -117,7 +117,28 @@ public class RequestTest {
         assertThat(encoded, containsString("foo"));
         assertThat(encoded, containsString("key"));
         assertThat(encoded, containsString("value"));
-        assertThat(encoded, containsString("testing"));
+        assertThat(encoded, containsString("filename=\"testing"));
+    }
+
+    @Test
+    public void shouldOverrideFilenameInUpload() throws Exception {
+        File f = File.createTempFile("testing", "test");
+
+        HttpPost request = Request.to("/foo")
+                .with("key", "value")
+                .withFile("foo", f, "music.mp3")
+                .buildRequest(HttpPost.class);
+
+        assertTrue(request.getEntity() instanceof MultipartEntity);
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        request.getEntity().writeTo(os);
+        String encoded = os.toString();
+
+        assertThat(encoded, containsString("foo"));
+        assertThat(encoded, containsString("key"));
+        assertThat(encoded, containsString("value"));
+        assertThat(encoded, containsString("filename=\"music.mp3\""));
     }
 
     @Test
@@ -128,6 +149,21 @@ public class RequestTest {
         assertTrue(Request.to("/foo")
                 .with("key", "value")
                 .withFile("foo", "foo".getBytes()).isMultipart());
+    }
+
+    @Test
+    public void shouldUploadByteDataWithFilename() throws Exception {
+        HttpPost request = Request.to("/foo")
+                .with("key", "value")
+                .withFile("testing", "foo".getBytes(), "music.mp3")
+                .buildRequest(HttpPost.class);
+
+        assertTrue(request.getEntity() instanceof MultipartEntity);
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        request.getEntity().writeTo(os);
+        String encoded = os.toString();
+        assertThat(encoded, containsString("filename=\"music.mp3\""));
     }
 
     @Test

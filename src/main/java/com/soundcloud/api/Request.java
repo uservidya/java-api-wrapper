@@ -9,6 +9,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MIME;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.AbstractContentBody;
+import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.message.BasicNameValuePair;
@@ -20,7 +21,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -44,8 +44,8 @@ import java.util.Map;
  */
 public class Request implements Iterable<NameValuePair> {
     private List<NameValuePair> mParams = new ArrayList<NameValuePair>(); // XXX should probably be lazy
-    private Map<String, File> mFiles;
-    private Map<String, ByteBuffer> mByteBuffers;
+    private Map<String, Attachment> mFiles;
+
     private HttpEntity mEntity;
 
     private Token mToken;
@@ -97,7 +97,7 @@ public class Request implements Iterable<NameValuePair> {
         listener = request.listener;
         mParams = new ArrayList<NameValuePair>(request.mParams);
         mIfNoneMatch = request.mIfNoneMatch;
-        if (request.mFiles != null) mFiles = new HashMap<String, File>(request.mFiles);
+        if (request.mFiles != null) mFiles = new HashMap<String, Attachment>(request.mFiles);
     }
 
     /**
@@ -186,8 +186,19 @@ public class Request implements Iterable<NameValuePair> {
      * @return this
      */
     public Request withFile(String name, File file) {
-        if (mFiles == null) mFiles = new HashMap<String,File>();
-        if (file != null)  mFiles.put(name, file);
+        return withFile(name, file, file.getName());
+    }
+
+    /**
+     * Registers a file to be uploaded with a POST or PUT request.
+     * @param name  the name of the parameter
+     * @param file  the file to be submitted
+     * @param fileName  the name of the uploaded file (overrides file parameter)
+     * @return this
+     */
+    public Request withFile(String name, File file, String fileName) {
+        if (mFiles == null) mFiles = new HashMap<String,Attachment>();
+        if (file != null)  mFiles.put(name, new Attachment(file, fileName));
         return this;
     }
 
@@ -198,7 +209,18 @@ public class Request implements Iterable<NameValuePair> {
      * @return this
      */
     public Request withFile(String name, byte[] data) {
-        return withFile(name, ByteBuffer.wrap(data));
+        return withFile(name, ByteBuffer.wrap(data), null);
+    }
+
+    /**
+     * Registers binary data to be uploaded with a POST or PUT request.
+     * @param name  the name of the parameter
+     * @param data  the data to be submitted
+     * @param fileName the name of the uploaded file
+     * @return this
+     */
+    public Request withFile(String name, byte[] data, String fileName) {
+        return withFile(name, ByteBuffer.wrap(data), fileName);
     }
 
     /**
@@ -208,8 +230,20 @@ public class Request implements Iterable<NameValuePair> {
      * @return this
      */
     public Request withFile(String name, ByteBuffer data) {
-        if (mByteBuffers == null) mByteBuffers = new HashMap<String, ByteBuffer>();
-        if (data != null) mByteBuffers.put(name, data);
+        return withFile(name, data, null);
+    }
+
+
+    /**
+     * Registers binary data to be uploaded with a POST or PUT request.
+     * @param name  the name of the parameter
+     * @param data  the data to be submitted
+     * @param fileName the name of the uploaded file
+     * @return this
+     */
+    public Request withFile(String name, ByteBuffer data, String fileName) {
+        if (mFiles == null) mFiles = new HashMap<String, Attachment>();
+        if (data != null) mFiles.put(name, new Attachment(data, fileName));
         return this;
     }
 
@@ -251,8 +285,7 @@ public class Request implements Iterable<NameValuePair> {
     }
 
     public boolean isMultipart() {
-        return (mFiles != null && !mFiles.isEmpty()) ||
-               (mByteBuffers != null && !mByteBuffers.isEmpty());
+        return mFiles != null && !mFiles.isEmpty();
     }
 
     /**
@@ -283,14 +316,8 @@ public class Request implements Iterable<NameValuePair> {
                     MultipartEntity multiPart = new MultipartEntity();
 
                     if (mFiles != null) {
-                        for (Map.Entry<String,File> e : mFiles.entrySet()) {
-                            multiPart.addPart(e.getKey(), new FileBody(e.getValue()));
-                        }
-                    }
-
-                    if (mByteBuffers != null) {
-                        for (Map.Entry<String, ByteBuffer> e : mByteBuffers.entrySet()) {
-                            multiPart.addPart(e.getKey(), new ByteBufferBody(e.getValue()));
+                        for (Map.Entry<String, Attachment> e : mFiles.entrySet()) {
+                            multiPart.addPart(e.getKey(), e.getValue().toContentBody());
                         }
                     }
 
@@ -417,6 +444,56 @@ public class Request implements Iterable<NameValuePair> {
                 byte[] dst = new byte[mBuffer.capacity()];
                 mBuffer.get(dst);
                 out.write(dst);
+            }
+        }
+    }
+
+    /* package */ static class Attachment {
+        public final File file;
+        public final ByteBuffer data;
+        public final String fileName;
+
+        Attachment(File file) {
+            this(file, file.getName());
+        }
+
+        Attachment(File file, String fileName) {
+            if (file == null) throw  new IllegalArgumentException("file cannot be null");
+            this.fileName = fileName;
+            this.file = file;
+            this.data = null;
+        }
+
+        Attachment(ByteBuffer data) {
+            this(data, null);
+        }
+
+        Attachment(ByteBuffer data, String fileName) {
+            if (data == null) throw new IllegalArgumentException("data cannot be null");
+
+            this.data = data;
+            this.fileName = fileName;
+            this.file = null;
+        }
+
+        public ContentBody toContentBody() {
+            if (file != null) {
+                return new FileBody(file) {
+                    @Override
+                    public String getFilename() {
+                        return fileName;
+                    }
+                };
+            } else if (data != null) {
+                return new ByteBufferBody(data) {
+                    @Override
+                    public String getFilename() {
+                        return fileName;
+                    }
+                };
+            } else {
+                // never happens
+                throw new IllegalStateException("no upload data");
             }
         }
     }
