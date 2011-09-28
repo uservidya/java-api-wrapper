@@ -76,7 +76,7 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
         HttpResponse resp = api.post(Request.to(TRACKS).with(
                   TITLE, "Hello Android",
                   POST_TO_EMPTY, "")
-                .withFile(ASSET_DATA, bb));
+                .withFile(ASSET_DATA, bb, "hello.aiff"));
 
         int status = resp.getStatusLine().getStatusCode();
         assertThat(status, is(201));

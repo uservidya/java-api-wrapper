@@ -116,3 +116,7 @@ def getAuth(repo_id) {
    }
    [:]
 }
+
+task printDebug << {
+  println httpDebug.collect { "-D"+it.key+"="+it.value }.join(' ')
+}

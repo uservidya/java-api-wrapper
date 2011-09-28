@@ -6,6 +6,7 @@ import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MIME;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.AbstractContentBody;
@@ -13,6 +14,7 @@ import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.james.mime4j.util.CharsetUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,6 +23,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -202,10 +205,11 @@ public class Request implements Iterable<NameValuePair> {
      * Registers binary data to be uploaded with a POST or PUT request.
      * @param name  the name of the parameter
      * @param data  the data to be submitted
+     * @deprecated use {@link #withFile(String, byte[], String)} instead
      * @return this
      */
     public Request withFile(String name, byte[] data) {
-        return withFile(name, ByteBuffer.wrap(data), null);
+        return withFile(name, ByteBuffer.wrap(data));
     }
 
     /**
@@ -224,9 +228,10 @@ public class Request implements Iterable<NameValuePair> {
      * @param name  the name of the parameter
      * @param data  the data to be submitted
      * @return this
+     * @deprecated use {@link #withFile(String, java.nio.ByteBuffer), String} instead
      */
     public Request withFile(String name, ByteBuffer data) {
-        return withFile(name, data, null);
+        return withFile(name, data, "upload");
     }
 
 
@@ -308,8 +313,12 @@ public class Request implements Iterable<NameValuePair> {
                 HttpEntityEnclosingRequestBase enclosingRequest =
                         (HttpEntityEnclosingRequestBase) request;
 
+                final Charset charSet =  CharsetUtil.getCharset("UTF-8");
                 if (isMultipart()) {
-                    MultipartEntity multiPart = new MultipartEntity();
+                    MultipartEntity multiPart = new MultipartEntity(
+                            HttpMultipartMode.BROWSER_COMPATIBLE,  // XXX change this to STRICT once rack on server is upgraded
+                            null,
+                            charSet);
 
                     if (mFiles != null) {
                         for (Map.Entry<String, Attachment> e : mFiles.entrySet()) {
@@ -318,7 +327,7 @@ public class Request implements Iterable<NameValuePair> {
                     }
 
                     for (NameValuePair pair : mParams) {
-                        multiPart.addPart(pair.getName(), new StringBodyNoHeaders(pair.getValue()));
+                        multiPart.addPart(pair.getName(), new StringBody(pair.getValue(), "text/plain", charSet));
                     }
 
                     enclosingRequest.setEntity(listener == null ? multiPart :
@@ -392,20 +401,6 @@ public class Request implements Iterable<NameValuePair> {
 
 
 
-    static class StringBodyNoHeaders extends StringBody {
-        public StringBodyNoHeaders(String value) throws UnsupportedEncodingException {
-            super(value);
-        }
-
-        @Override public String getMimeType() {
-            return null;
-        }
-
-        @Override public String getTransferEncoding() {
-            return null;
-        }
-    }
-
     static class ByteBufferBody extends AbstractContentBody {
         private ByteBuffer mBuffer;
 
@@ -449,6 +444,7 @@ public class Request implements Iterable<NameValuePair> {
         public final ByteBuffer data;
         public final String fileName;
 
+        /** @noinspection UnusedDeclaration*/
         Attachment(File file) {
             this(file, file.getName());
         }
@@ -460,6 +456,7 @@ public class Request implements Iterable<NameValuePair> {
             this.data = null;
         }
 
+        /** @noinspection UnusedDeclaration*/
         Attachment(ByteBuffer data) {
             this(data, null);
         }
