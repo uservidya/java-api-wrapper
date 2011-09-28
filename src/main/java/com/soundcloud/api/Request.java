@@ -155,10 +155,6 @@ public class Request implements Iterable<NameValuePair> {
         return mParams.size();
     }
 
-    public String getResource() {
-        return mResource;
-    }
-
     /**
      * @return a String that is suitable for use as an <code>application/x-www-form-urlencoded</code>
      * list of parameters in an HTTP PUT or HTTP POST.

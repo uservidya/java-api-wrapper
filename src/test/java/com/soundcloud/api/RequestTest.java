@@ -289,9 +289,4 @@ public class RequestTest {
         assertThat(copy.getToken(), not(equalTo(orig.getToken())));
         assertThat(orig.getListener(),equalTo(copy.getListener()));
     }
-
-    @Test
-    public void shouldExposeResource() throws Exception {
-        assertThat(new Request("/foo?foo=bar").getResource(), equalTo("/foo"));
-    }
 }

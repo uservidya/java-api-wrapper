@@ -18,7 +18,7 @@ app and makes use of Android's [intent][] framework.
 
 Create a wrapper instance:
 
-```java
+```
 ApiWrapper wrapper = new ApiWrapper("client_id", "client_secret",
                                      null, null, Env.LIVE);
 ```
