@@ -35,6 +35,7 @@ public interface Params {
         String BPM           = "track[bpm]";
         String LICENSE       = "track[license]";
         String SHARED_EMAILS = "track[shared_to][emails][][address]";
+        String SHARED_IDS    = "track[shared_to][users][][id]";
         String SHARING_NOTE  = "track[sharing_note]";
         String PUBLIC        = "public";
         String PRIVATE       = "private";
