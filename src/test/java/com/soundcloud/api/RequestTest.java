@@ -101,6 +101,17 @@ public class RequestTest {
     }
 
     @Test
+    public void shouldAddRangeHeaderIfSpecified() throws Exception {
+        HttpGet request = Request.to("/foo")
+                .range(1,200)
+                .buildRequest(HttpGet.class);
+
+        Header auth = request.getFirstHeader("Range");
+        assertNotNull(auth);
+        assertThat(auth.getValue(), equalTo("bytes=1-200"));
+    }
+
+    @Test
     public void shouldCreateMultipartRequestWhenFilesAreAdded() throws Exception {
         File f = File.createTempFile("testing", "test");
 
@@ -288,5 +299,32 @@ public class RequestTest {
         assertThat(copy.toUrl(), not(equalTo(orig.toUrl())));
         assertThat(copy.getToken(), not(equalTo(orig.getToken())));
         assertThat(orig.getListener(),equalTo(copy.getListener()));
+    }
+
+    @Test
+    public void testFormatRange() throws Exception {
+        assertThat(Request.formatRange(1, 1000), equalTo("bytes=1-1000"));
+        assertThat(Request.formatRange(1), equalTo("bytes=1-"));
+        assertThat(Request.formatRange(), equalTo("bytes=0-"));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testFormatRangeInvalidArgument() throws Exception {
+        Request.formatRange(100,200,300);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testFormatRangeInvalidArgument2() throws Exception {
+        Request.formatRange(1000, 1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testFormatRangeInvalidArgument3() throws Exception {
+        Request.formatRange(-1);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testFormatRangeInvalidArgument4() throws Exception {
+        Request.formatRange(-1, 200);
     }
 }

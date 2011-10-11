@@ -55,6 +55,7 @@ public class Request implements Iterable<NameValuePair> {
     private String mResource;
     private TransferProgressListener listener;
     private String mIfNoneMatch;
+    private long[] mRange;
 
     /** Empty request */
     public Request() {}
@@ -276,6 +277,11 @@ public class Request implements Iterable<NameValuePair> {
         }
     }
 
+    public Request range(long... ranges) {
+        mRange = ranges;
+        return this;
+    }
+
     /**
      * @param listener a listener for receiving notifications about transfer progress
      * @return this
@@ -343,6 +349,10 @@ public class Request implements Iterable<NameValuePair> {
 
                 request.setURI(URI.create(mResource));
             } else { // just plain GET/DELETE/...
+                if (mRange != null) {
+                    request.addHeader("Range", formatRange(mRange));
+                }
+
                 if (mIfNoneMatch != null) {
                     request.addHeader("If-None-Match", mIfNoneMatch);
                 }
@@ -360,6 +370,20 @@ public class Request implements Iterable<NameValuePair> {
         } catch (UnsupportedEncodingException e) {
             // XXX really rethrow?
             throw new RuntimeException(e);
+        }
+    }
+
+    static String formatRange(long... range) {
+        switch (range.length) {
+            case 0: return "bytes=0-";
+            case 1:
+                if (range[0] < 0) throw new IllegalArgumentException("negative range");
+                return "bytes="+range[0]+"-";
+            case 2:
+                if (range[0] < 0) throw new IllegalArgumentException("negative range");
+                if (range[0] > range[1]) throw new IllegalArgumentException(range[0] + ">" + range[1]);
+                return "bytes="+range[0]+"-"+range[1];
+            default: throw new IllegalArgumentException("invalid range specified");
         }
     }
 
