@@ -1,6 +1,8 @@
 package com.soundcloud.api;
 
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 
 import java.io.IOException;
 import java.net.URI;
@@ -164,6 +166,11 @@ public interface CloudAPI {
     HttpResponse delete(Request request) throws IOException;
 
     /**
+     * @return the used httpclient
+     */
+    HttpClient getHttpClient();
+
+    /**
      * Resolve the given SoundCloud URI
      *
      * @param uri SoundCloud model URI, e.g. http://soundcloud.com/bob
@@ -171,6 +178,17 @@ public interface CloudAPI {
      * @throws IOException network errors
      */
     long resolve(String uri) throws IOException;
+
+
+    /**
+     * Resolve the given SoundCloud stream URI
+     *
+     * @param uri SoundCloud stream URI, e.g. https://api.soundcloud.com/tracks/25272620/stream
+     * @return the resolved url or null if not possible
+     * @throws IOException network errors
+     */
+    String resolveStreamUrl(String uri) throws IOException;
+
 
     /** @return the current token */
     Token getToken();

@@ -406,6 +406,17 @@ public class ApiWrapper implements CloudAPI, Serializable {
         return -1;
     }
 
+    @Override
+    public String resolveStreamUrl(String url) throws IOException {
+        HttpResponse resp = get(Request.to(url));
+        if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
+            Header location = resp.getFirstHeader("Location");
+            return (location != null) ? location.getValue() : null;
+        } else {
+            return null;
+        }
+    }
+
     @Override public HttpResponse get(Request request) throws IOException {
         return execute(request, HttpGet.class);
     }

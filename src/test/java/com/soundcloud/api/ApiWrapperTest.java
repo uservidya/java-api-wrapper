@@ -43,6 +43,7 @@ public class ApiWrapperTest {
     @Before
     public void setup() {
         api = new ApiWrapper("invalid", "invalid", URI.create("redirect://me"), null, Env.SANDBOX) {
+            private static final long serialVersionUID = 12345; // silence warnings
             @Override
             protected RequestDirector getRequestDirector(HttpRequestExecutor requestExec,
                                                          ClientConnectionManager conman,

@@ -36,7 +36,7 @@ public final class GetResource {
             try {
                 HttpResponse resp = wrapper.get(resource);
                 if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                    System.out.println("\n" + formatJSON(Http.getString(resp)));
+                    System.out.println("\n" + Http.formatJSON(Http.getString(resp)));
                 } else {
                     System.err.println("Invalid status received: " + resp.getStatusLine());
                 }
@@ -47,15 +47,5 @@ public final class GetResource {
         }
     }
 
-    static String formatJSON(String s) {
-        try {
-            return new JSONObject(s).toString(4);
-        } catch (JSONException e) {
-            try {
-                return new JSONArray(s).toString(4);
-            } catch (JSONException e2) {
-                return s;
-            }
-        }
-    }
+
 }

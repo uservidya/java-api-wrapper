@@ -209,7 +209,7 @@ public class Request implements Iterable<NameValuePair> {
      * @deprecated use {@link #withFile(String, byte[], String)} instead
      * @return this
      */
-    public Request withFile(String name, byte[] data) {
+    @Deprecated public Request withFile(String name, byte[] data) {
         return withFile(name, ByteBuffer.wrap(data));
     }
 
@@ -231,7 +231,7 @@ public class Request implements Iterable<NameValuePair> {
      * @return this
      * @deprecated use {@link #withFile(String, java.nio.ByteBuffer), String} instead
      */
-    public Request withFile(String name, ByteBuffer data) {
+    @Deprecated public Request withFile(String name, ByteBuffer data) {
         return withFile(name, data, "upload");
     }
 

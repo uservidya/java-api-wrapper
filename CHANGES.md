@@ -2,6 +2,9 @@
 
   * Support httpmime-4.1.x (GH-2)
   * Support for conditional GETs
+  * Support for Range requests
+  * added CloudApi#resolveStreamUrl(String)
+  * added CloudApi#getHttpClient()
   * Changed the handling of max connections per route
   * Added some endpoints
   * Added PostResource example

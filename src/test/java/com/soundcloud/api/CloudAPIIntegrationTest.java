@@ -4,12 +4,15 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import javax.xml.ws.Endpoint;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -120,6 +123,34 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
 
         long id = api.resolve("http://sandbox-soundcloud.com/api-testing");
         assertThat(id, is(1862213L));
+    }
+
+    @Test
+    public void shouldResolveStreamUrls() throws Exception {
+        login();
+
+        String resolved = api.resolveStreamUrl("https://api.sandbox-soundcloud.com/tracks/2100832/stream");
+
+        assertThat(resolved, not(nullValue()));
+        assertThat(resolved, containsString("http://ak-media.soundcloud.com/"));
+    }
+
+    @Test
+    public void shouldSupportRangeRequest() throws Exception {
+        login();
+
+        String resolved = api.resolveStreamUrl("https://api.sandbox-soundcloud.com/tracks/2100832/stream");
+        assertThat(resolved, not(nullValue()));
+
+        HttpResponse resp = api
+                .getHttpClient()
+                .execute(Request.to(resolved).range(50, 100).buildRequest(HttpGet.class));
+
+        assertThat(resp.getStatusLine().toString(), resp.getStatusLine().getStatusCode(), is(206));
+        Header range = resp.getFirstHeader("Content-Range");
+        assertThat(range, notNullValue());
+        assertThat(range.getValue(), equalTo("bytes 50-100/19643"));
+        assertThat(resp.getEntity().getContentLength(), is(51L));
     }
 
     @Test

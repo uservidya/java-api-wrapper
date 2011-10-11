@@ -3,6 +3,7 @@ package com.soundcloud.api;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.protocol.HTTP;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -62,5 +63,17 @@ public class Http {
     public static String etag(HttpResponse resp) {
         Header etag = resp.getFirstHeader("Etag");
         return etag != null ? etag.getValue() : null;
+    }
+
+    public static String formatJSON(String s) {
+        try {
+            return new JSONObject(s).toString(4);
+        } catch (JSONException e) {
+            try {
+                return new JSONArray(s).toString(4);
+            } catch (JSONException e2) {
+                return s;
+            }
+        }
     }
 }

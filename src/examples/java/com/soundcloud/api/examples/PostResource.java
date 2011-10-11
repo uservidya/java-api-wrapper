@@ -34,26 +34,13 @@ public class PostResource {
             try {
                 HttpResponse resp = wrapper.post(resource);
                 if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_CREATED) {
-                    System.out.println("\n" + formatJSON(Http.getString(resp)));
+                    System.out.println("\n" + Http.formatJSON(Http.getString(resp)));
                 } else {
                     System.err.println("Invalid status received: " + resp.getStatusLine());
                 }
             } finally {
                 // serialise wrapper state again (token might have been refreshed)
                 wrapper.toFile(wrapperFile);
-            }
-        }
-    }
-
-
-    static String formatJSON(String s) {
-        try {
-            return new JSONObject(s).toString(4);
-        } catch (JSONException e) {
-            try {
-                return new JSONArray(s).toString(4);
-            } catch (JSONException e2) {
-                return s;
             }
         }
     }
