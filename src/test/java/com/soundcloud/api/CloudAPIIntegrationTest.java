@@ -12,7 +12,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import javax.xml.ws.Endpoint;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
