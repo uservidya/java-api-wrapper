@@ -1,6 +1,5 @@
 package com.soundcloud.api;
 
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 
@@ -138,6 +137,13 @@ public interface CloudAPI {
     Token invalidateToken();
 
     /**
+       * @param request resource to HEAD
+       * @return the HTTP response
+       * @throws IOException IO/Error
+       */
+    HttpResponse head(Request request) throws IOException;
+
+    /**
      * @param request resource to GET
      * @return the HTTP response
      * @throws IOException IO/Error
@@ -174,21 +180,21 @@ public interface CloudAPI {
      * Resolve the given SoundCloud URI
      *
      * @param uri SoundCloud model URI, e.g. http://soundcloud.com/bob
-     * @return the id or -1 if uri not found
+     * @return the id
      * @throws IOException network errors
+     * @throws ResolverException if object could not be resolved
      */
     long resolve(String uri) throws IOException;
-
 
     /**
      * Resolve the given SoundCloud stream URI
      *
      * @param uri SoundCloud stream URI, e.g. https://api.soundcloud.com/tracks/25272620/stream
-     * @return the resolved url or null if not possible
+     * @return the resolved stream
      * @throws IOException network errors
+     * @throws com.soundcloud.api.CloudAPI.ResolverException resolver error (invalid status etc)
      */
-    String resolveStreamUrl(String uri) throws IOException;
-
+    Stream resolveStreamUrl(String uri) throws IOException;
 
     /** @return the current token */
     Token getToken();
@@ -257,6 +263,30 @@ public interface CloudAPI {
          */
         public InvalidTokenException(int code, String status) {
             super("HTTP error:" + code + " (" + status + ")");
+        }
+    }
+
+    class ResolverException extends IOException {
+        private static final long serialVersionUID = -2990651725862868387L;
+
+        public final HttpResponse response;
+        public ResolverException(String s, HttpResponse resp) {
+            super(s);
+            this.response = resp;
+        }
+
+        public ResolverException(Throwable throwable, HttpResponse response) {
+            super(throwable);
+            this.response = response;
+        }
+
+        public int getStatusCode() {
+            return response.getStatusLine().getStatusCode();
+        }
+
+        @Override
+        public String getMessage() {
+            return super.getMessage()+" "+(response != null ? response.getStatusLine() : "");
         }
     }
 }

@@ -8,6 +8,8 @@
   * Changed the handling of max connections per route
   * Added some endpoints
   * Added PostResource example
+  * Added support for HEAD requests
+  * Added stream resolving
 
 ## 1.0.1 2011-07-04
 

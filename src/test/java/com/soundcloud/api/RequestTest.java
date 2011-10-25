@@ -262,6 +262,11 @@ public class RequestTest {
         assertThat(
             new Request("/foo?bar=baz&foo=bar").with("1", "2").toUrl(),
             equalTo("/foo?bar=baz&foo=bar&1=2"));
+
+        String s3 = "http://ak-media.soundcloud.com/XAGeEabPextR.128.mp3?AWSAccessKeyId=AKIAJBHW5FB4ERKUQUOQ&Expires=1319547723&Signature=o53ozj2b%2BrdARFBEZoAziK7mWIY%3D&__gda__=1319547723_e7e8d73cf3af2b003d891ecc01c20143";
+
+        assertThat(Request.to(s3).toUrl(), equalTo(s3));
+
     }
 
     @Test

@@ -348,7 +348,7 @@ public class Request implements Iterable<NameValuePair> {
                 }
 
                 request.setURI(URI.create(mResource));
-            } else { // just plain GET/DELETE/...
+            } else { // just plain GET/HEAD/DELETE/...
                 if (mRange != null) {
                     request.addHeader("Range", formatRange(mRange));
                 }

@@ -1,12 +1,16 @@
 package com.soundcloud.api;
 
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
+import junit.framework.Assert;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.hamcrest.CoreMatchers;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -122,28 +126,51 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
 
         long id = api.resolve("http://sandbox-soundcloud.com/api-testing");
         assertThat(id, is(1862213L));
+
+        try {
+            id = api.resolve("http://sandbox-soundcloud.com/i-do-no-exist");
+            fail("expected resolver exception, got: "+id);
+        } catch (CloudAPI.ResolverException e) {
+            // expected
+            assertThat(e.getStatusCode(), is(404));
+        }
     }
 
     @Test
     public void shouldResolveStreamUrls() throws Exception {
         login();
 
-        String resolved = api.resolveStreamUrl("https://api.sandbox-soundcloud.com/tracks/2100832/stream");
+        Stream resolved = api.resolveStreamUrl("https://api.sandbox-soundcloud.com/tracks/2100832/stream");
 
-        assertThat(resolved, not(nullValue()));
-        assertThat(resolved, containsString("http://ak-media.soundcloud.com/"));
+        assertThat(resolved.url, equalTo("https://api.sandbox-soundcloud.com/tracks/2100832/stream"));
+        assertThat(resolved.streamUrl, containsString("http://ak-media.soundcloud.com/"));
+
+        assertTrue("expire should be in the future", resolved.expires > System.currentTimeMillis());
+        assertThat(resolved.eTag, equalTo("\"1298a3c38b12dc055ad0f7beb956bc56\""));
+    }
+
+    @Test
+    public void shouldThrowResolverExceptionWhenStreamCannotBeResolved() throws Exception {
+        login();
+        try {
+            Stream s = api.resolveStreamUrl("https://api.sandbox-soundcloud.com/tracks/999919191/stream");
+            fail("expected resolver exception, got: "+s);
+        } catch (CloudAPI.ResolverException e) {
+            // expected
+            assertThat(e.getStatusCode(), is(404));
+        }
     }
 
     @Test
     public void shouldSupportRangeRequest() throws Exception {
         login();
 
-        String resolved = api.resolveStreamUrl("https://api.sandbox-soundcloud.com/tracks/2100832/stream");
-        assertThat(resolved, not(nullValue()));
+        Stream resolved = api.resolveStreamUrl("https://api.sandbox-soundcloud.com/tracks/2100832/stream");
+        assertThat(resolved.contentLength, is(19643L));
 
         HttpResponse resp = api
                 .getHttpClient()
-                .execute(Request.to(resolved).range(50, 100).buildRequest(HttpGet.class));
+                .execute(resolved.streamUrl().range(50, 100).buildRequest(HttpGet.class));
 
         assertThat(resp.getStatusLine().toString(), resp.getStatusLine().getStatusCode(), is(206));
         Header range = resp.getFirstHeader("Content-Range");
