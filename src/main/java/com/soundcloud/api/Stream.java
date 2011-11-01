@@ -4,6 +4,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.impl.cookie.DateUtils;
 
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.text.DateFormat;
@@ -14,13 +15,15 @@ import java.util.Locale;
 /**
  * Class representing a remote audio stream object, including metadata.
  */
-public class Stream {
-    static final String AMZ_BITRATE  = "x-amz-meta-bitrate";
-    static final String AMZ_DURATION = "x-amz-meta-duration";
+public class Stream implements Serializable {
+    public static final String AMZ_BITRATE  = "x-amz-meta-bitrate";
+    public static final String AMZ_DURATION = "x-amz-meta-duration";
     static final String EXPIRES = "Expires";
 
     public static final long DEFAULT_URL_LIFETIME = 60 * 1000; // expire after 1 minute
     public static final DateFormat DATE_FORMAT = new SimpleDateFormat(DateUtils.PATTERN_RFC1123, Locale.US);
+
+    private static final long serialVersionUID = -2054788615389851590L;
 
     public final String url;
     public final String streamUrl;

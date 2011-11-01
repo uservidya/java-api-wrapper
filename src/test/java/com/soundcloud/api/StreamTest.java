@@ -16,7 +16,11 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 public class StreamTest {
     @Test
@@ -51,6 +55,31 @@ public class StreamTest {
 
         assertThat(s1.streamUrl, not(equalTo(s2.streamUrl)));
         assertThat(s1.expires, not(is(s2.expires)));
+    }
+
+    @Test
+    public void shouldBeSerializable() throws Exception {
+        Stream s1 = new Stream(
+                "http://api.soundcloud.com",
+                "http://ak-media.soundcloud.com/Nbhil06qjDaP.128.mp3?AWSAccessKeyId=AKIAJBHW5FB4ERKUQUOQ&Expires=1319537336&Signature=tzk9EAm3bcjpMJ0cukHPdVx2ml4%3D&__gda__=1319537336_9354e7fea41da4f7a87e78db9a4ed582",
+                parse("s3-headers.txt"));
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(bos);
+
+        oos.writeObject(s1);
+        oos.close();
+
+        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray()));
+        Stream s2 = (Stream) ois.readObject();
+
+        assertThat(s1.eTag, equalTo(s2.eTag));
+        assertThat(s1.bitRate, equalTo(s2.bitRate));
+        assertThat(s1.duration, equalTo(s2.duration));
+        assertThat(s1.contentLength, equalTo(s2.contentLength));
+        assertThat(s1.lastModified, equalTo(s2.lastModified));
+        assertThat(s1.streamUrl, equalTo(s2.streamUrl));
+        assertThat(s1.expires, equalTo(s2.expires));
     }
 
     private HttpResponse parse(final String resource) throws IOException, HttpException {
