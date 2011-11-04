@@ -48,7 +48,26 @@ public class FacebookConnect {
         } else {
             System.err.println("open \"" + url + "\" in a browser");
         }
+
+        // start a web server to get the redirect information
         startServer(wrapper);
+
+
+        // note: on Android you would use a WebView instead an override 'shouldOverrideUrlLoading':
+
+        /*
+        WebView webView = (WebView) findViewById(R.id.webview);
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(final WebView view, String url) {
+                if (url.startsWith(REDIRECT_URI)) {
+                    Uri result = Uri.parse(url);
+                    String error = result.getQueryParameter("error");
+                    String code = result.getQueryParameter("code");
+                }
+            }
+        });
+        */
     }
 
     static void startServer(ApiWrapper wrapper) throws IOException {
