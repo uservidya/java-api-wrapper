@@ -41,10 +41,9 @@ public class FacebookConnect {
                 null    /* token */,
                 Env.SANDBOX);
 
-
-        String url = wrapper.authorizationCodeUrl(Endpoints.FACEBOOK_CONNECT, Token.SCOPE_NON_EXPIRING).toString();
+        URI url = wrapper.authorizationCodeUrl(Endpoints.FACEBOOK_CONNECT, Token.SCOPE_NON_EXPIRING);
         if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-            Desktop.getDesktop().browse(URI.create(url));
+            Desktop.getDesktop().browse(url);
         } else {
             System.err.println("open \"" + url + "\" in a browser");
         }
