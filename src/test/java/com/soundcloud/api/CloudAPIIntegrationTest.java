@@ -27,6 +27,7 @@ import java.util.concurrent.CyclicBarrier;
 
 public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
     // http://sandbox-soundcloud.com/you/apps/java-api-wrapper-test-app
+    // user: api-testing
     static final String CLIENT_ID     = "yH1Jv2C5fhIbZfGTpKtujQ";
     static final String CLIENT_SECRET = "C6o8jc517b6PIw0RKtcfQsbOK3BjGpxWFLg977UiguY";
 

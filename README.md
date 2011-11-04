@@ -120,6 +120,7 @@ The wrapper ships with a few examples in `src/examples/java`:
   * [PutResource][] performs a PUT request to update a resource and prints the
   JSON result
   * [UploadFile][] uploads a file to SoundCloud.
+  * [FacebookConnect][] obtain an access token via Facebook login
 
 You can use gradle tasks to compile and run these examples with one command.
 If you don't want to use gradle there is also a precompiled jar with all
@@ -257,6 +258,7 @@ See LICENSE for details.
 [PutResource]: https://github.com/soundcloud/java-api-wrapper/blob/master/src/examples/java/com/soundcloud/api/examples/PutResource.java
 [PostResource]: https://github.com/soundcloud/java-api-wrapper/blob/master/src/examples/java/com/soundcloud/api/examples/PostResource.java
 [UploadFile]: https://github.com/soundcloud/java-api-wrapper/blob/master/src/examples/java/com/soundcloud/api/examples/UploadFile.java
+[FacebookConnect]: https://github.com/soundcloud/java-api-wrapper/blob/master/src/examples/java/com/soundcloud/api/examples/FacebookConnect.java
 [SoundCloud Android]: https://market.android.com/details?id=com.soundcloud.android
 [register-app]: http://soundcloud.com/you/apps/new
 [Apache Maven]: http://maven.apache.org/

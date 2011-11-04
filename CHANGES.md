@@ -10,6 +10,7 @@
   * Added PostResource example
   * Added support for HEAD requests
   * Added stream resolving
+  * Added Facebook login example
 
 ## 1.0.1 2011-07-04
 
