@@ -41,6 +41,7 @@ public class FacebookConnect {
                 null    /* token */,
                 Env.SANDBOX);
 
+        // generate the URL the user needs to open in the browser
         URI url = wrapper.authorizationCodeUrl(Endpoints.FACEBOOK_CONNECT, Token.SCOPE_NON_EXPIRING);
         if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
             Desktop.getDesktop().browse(url);
@@ -51,21 +52,22 @@ public class FacebookConnect {
         // start a web server to get the redirect information
         startServer(wrapper);
 
-
         // note: on Android you would use a WebView instead an override 'shouldOverrideUrlLoading':
 
         /*
-        WebView webView = (WebView) findViewById(R.id.webview);
-        webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public boolean shouldOverrideUrlLoading(final WebView view, String url) {
-                if (url.startsWith(REDIRECT_URI)) {
-                    Uri result = Uri.parse(url);
-                    String error = result.getQueryParameter("error");
-                    String code = result.getQueryParameter("code");
+            WebView webView = (WebView) findViewById(R.id.webview);
+            webView.setWebViewClient(new WebViewClient() {
+                @Override
+                public boolean shouldOverrideUrlLoading(final WebView view, String url) {
+                    if (url.startsWith(REDIRECT_URI)) {
+                        Uri result = Uri.parse(url);
+                        String error = result.getQueryParameter("error");
+                        String code = result.getQueryParameter("code");
+                    }
                 }
-            }
-        });
+            });
+
+            webView.loadUrl(wrapper.authorizationCodeUrl(Endpoints.FACEBOOK_CONNECT, ...);
         */
     }
 
@@ -87,8 +89,11 @@ public class FacebookConnect {
                 Map<String, String> params = parseParameters(request[1]);
 
                 if (params.containsKey("error")) {
+                    // error logging in, redirect mismatch etc.
+
                     reply(out, "Error: " + params.get("error_description"));
                 } else if (params.containsKey("code")) {
+                    // we got a code back, try to exchange it for a token
                     try {
                         Token token = wrapper.authorizationCode(params.get("code"));
                         reply(out, "Got token: " + token);
@@ -96,6 +101,7 @@ public class FacebookConnect {
                         reply(out, e.getMessage());
                     }
                 } else {
+                    // unexpected redirect
                     reply(out, "invalid request:"+request[1]);
                 }
                break;

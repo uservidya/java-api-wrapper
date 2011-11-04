@@ -85,6 +85,10 @@ URI uri = wrapper.authorizationCodeUrl(Endpoints.CONNECT, Token.SCOPE_NON_EXPIRI
 // open uri in browser / WebView etc.
 ```
 
+## Login via Facebook
+
+Please see [FacebookConnect][] for an example of this login flow.
+
 ## Requirements
 
 The wrapper depends on [Apache HttpClient][] (including the [HttpMime][]
