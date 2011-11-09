@@ -24,7 +24,7 @@ Regenerate pom.xml
 This doesn't work properly at the moment - use `gradle uploadArchive` and copy
 `build/poms/pom-default.xml` to `pom.xml`.
 
-Releasing to Sonatype OSS (staging)
+## Releasing to Sonatype OSS (staging)
 
     (make sure there are no uncommitted changes in the repo)
     $ mvn -Dresume=false release:prepare # tag repo, bump pom.xml (needs SNAPSHOT tag in pom)
@@ -39,7 +39,7 @@ staging repository which can be used for testing. Once everything works you
 select "Release" to actually release it to the [release repo][]. The release
 repo is synced with [Maven Central][].
 
-Releasing snapshot versions
+## Releasing snapshot versions
 
 This is for releasing developer version of the package and can be done anytime,
 just make sure `build.gradle` version contains a `-SNAPSHOT` suffix, then run:
