@@ -239,6 +239,15 @@ public class ApiWrapper implements CloudAPI, Serializable {
     }
 
     /**
+     * User-Agent to identify ourselves with - defaults to USER_AGENT
+     * @return the agent to use
+     * @see CloudAPI#USER_AGENT
+     */
+    public String getUserAgent() {
+        return USER_AGENT;
+    }
+
+    /**
      * Request an OAuth2 token from SoundCloud
      * @param  request the token request
      * @return the token
@@ -312,14 +321,6 @@ public class ApiWrapper implements CloudAPI, Serializable {
         return SSLSocketFactory.getSocketFactory();
     }
 
-    /**
-     * User-Agent to identify ourselves with - defaults to USER_AGENT
-     * @return the agent to use
-     * @see CloudAPI#USER_AGENT
-     */
-    protected String getUserAgent() {
-        return USER_AGENT;
-    }
 
     /** @return The HttpClient instance used to make the calls */
     public HttpClient getHttpClient() {
@@ -413,7 +414,7 @@ public class ApiWrapper implements CloudAPI, Serializable {
     }
 
     @Override
-    public Stream resolveStreamUrl(String url) throws IOException {
+    public Stream resolveStreamUrl(final String url) throws IOException {
         HttpResponse resp = head(Request.to(url));
         if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
             Header location = resp.getFirstHeader("Location");
