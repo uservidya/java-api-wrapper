@@ -23,7 +23,7 @@ public interface CloudAPI {
     // other constants
     String REALM              = "SoundCloud";
     String OAUTH_SCHEME       = "oauth";
-    String VERSION            = "1.1-SNAPSHOT";
+    String VERSION            = "1.1.0";
     String USER_AGENT         = "SoundCloud Java Wrapper ("+VERSION+")";
 
     /**

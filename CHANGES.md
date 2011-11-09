@@ -1,4 +1,4 @@
-## 1.1.0-SNAPSHOT 2011-08-xx
+## 1.1.0 2011-11-09
 
   * Support httpmime-4.1.x (GH-2)
   * Support for conditional GETs
