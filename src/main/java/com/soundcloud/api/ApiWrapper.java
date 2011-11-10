@@ -415,14 +415,21 @@ public class ApiWrapper implements CloudAPI, Serializable {
 
     @Override
     public Stream resolveStreamUrl(final String url) throws IOException {
-        HttpResponse resp = get(Request.to(url));
+        HttpResponse resp = head(Request.to(url));
         if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
             Header location = resp.getFirstHeader("Location");
             if (location != null && location.getValue() != null) {
-                final String redirect = location.getValue();
-                resp = getHttpClient().execute(new HttpHead(redirect));
+                final String headRedirect = location.getValue();
+                resp = getHttpClient().execute(new HttpHead(headRedirect));
                 if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                    return new Stream(url, redirect, resp);
+                    Stream stream = new Stream(url, headRedirect, resp);
+                    // need to do another GET request to have a URL ready for client usage
+                    resp = get(Request.to(url));
+                    if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
+                        return stream.withNewStreamUrl(resp.getFirstHeader("Location").getValue());
+                    } else {
+                        throw new ResolverException("Unexpected response code", resp);
+                    }
                 } else {
                     throw new ResolverException("Unexpected response code", resp);
                 }

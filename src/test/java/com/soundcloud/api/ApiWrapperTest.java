@@ -250,10 +250,10 @@ public class ApiWrapperTest {
         assertThat(api.resolve("http://soundcloud.com/crazybob"), is(1000L));
     }
 
-    @Test(expected = CloudAPI.ResolverException.class)
-    public void resolveShouldRaiseResolverExceptionWhenInvalid() throws Exception {
+    @Test
+    public void resolveShouldReturnNegativeOneWhenInvalid() throws Exception {
         layer.addPendingHttpResponse(404, "Not found");
-        api.resolve("http://soundcloud.com/nonexisto");
+        assertThat(api.resolve("http://soundcloud.com/nonexisto"), equalTo(-1L));
     }
 
     @Test
