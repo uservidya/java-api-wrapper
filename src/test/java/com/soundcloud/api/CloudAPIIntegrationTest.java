@@ -86,7 +86,7 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
     }
 
 
-    @Test(expected = IOException.class)
+    @Test(expected = IOException.class) @Ignore
     public void shouldNotGetASignupTokenWhenInofficialApp() throws Exception {
         login();
         api.clientCredentials();
