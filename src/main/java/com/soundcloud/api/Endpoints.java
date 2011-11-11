@@ -2,7 +2,7 @@ package com.soundcloud.api;
 
 /**
  * Various SoundCloud API endpoints.
- * See <a href="https://github.com/soundcloud/api/wiki/03-Representations">the API docs</a> for the most
+ * See <a href="http://developers.soundcloud.com/docs/api/">the API docs</a> for the most
  * recent listing.
  */
 @SuppressWarnings({"UnusedDeclaration"})
@@ -45,4 +45,6 @@ public interface Endpoints {
     String SEND_PASSWORD       = "/passwords/reset-instructions";
     String CONNECT             = "/connect";
     String FACEBOOK_CONNECT    = "/connect/via/facebook";
+
+    String PLAYS               = "/plays";
 }

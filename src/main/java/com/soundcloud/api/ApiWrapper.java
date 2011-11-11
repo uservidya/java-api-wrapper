@@ -414,7 +414,7 @@ public class ApiWrapper implements CloudAPI, Serializable {
     }
 
     @Override
-    public Stream resolveStreamUrl(final String url) throws IOException {
+    public Stream resolveStreamUrl(final String url, boolean skipLogging) throws IOException {
         HttpResponse resp = head(Request.to(url));
         if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
             Header location = resp.getFirstHeader("Location");
@@ -424,7 +424,12 @@ public class ApiWrapper implements CloudAPI, Serializable {
                 if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                     Stream stream = new Stream(url, headRedirect, resp);
                     // need to do another GET request to have a URL ready for client usage
-                    resp = get(Request.to(url));
+                    Request req = Request.to(url);
+                    if (skipLogging) {
+                        // skip logging
+                        req.with("skip_logging", "1");
+                    }
+                    resp = get(req);
                     if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
                         return stream.withNewStreamUrl(resp.getFirstHeader("Location").getValue());
                     } else {

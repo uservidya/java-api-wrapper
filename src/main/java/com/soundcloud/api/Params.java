@@ -5,7 +5,7 @@ package com.soundcloud.api;
  */
 public interface Params {
     /**
-     * <a href="https://github.com/soundcloud/api/wiki/10.2-Resources%3A-tracks">Tracks</a>
+     * see <a href="http://developers.soundcloud.com/docs/api/tracks">developers.soundcloud.com/docs/api/tracks</a>
      */
     @SuppressWarnings({"UnusedDeclaration"})
     interface Track {
@@ -42,7 +42,7 @@ public interface Params {
     }
 
     /**
-     * <a href="https://github.com/soundcloud/api/wiki/10.1-Resources%3A-users">Users</a>
+     * see <a href="http://developers.soundcloud.com/docs/api/users">developers.soundcloud.com/docs/api/users</a>
      */
     @SuppressWarnings({"UnusedDeclaration"})
     interface User {
@@ -63,7 +63,7 @@ public interface Params {
     }
 
     /**
-     * <a href="https://github.com/soundcloud/api/wiki/10.5-Resources%3A-comments">Comments</a>
+     * see <a href="http://developers.soundcloud.com/docs/api/comments">developers.soundcloud.com/docs/api/comments</a>
      */
     @SuppressWarnings({"UnusedDeclaration"})
     interface Comment {

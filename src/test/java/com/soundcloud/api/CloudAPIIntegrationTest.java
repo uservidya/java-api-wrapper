@@ -2,15 +2,11 @@ package com.soundcloud.api;
 
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
-import junit.framework.Assert;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.hamcrest.CoreMatchers;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -141,7 +137,7 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
     public void shouldResolveStreamUrls() throws Exception {
         login();
 
-        Stream resolved = api.resolveStreamUrl("https://api.sandbox-soundcloud.com/tracks/2100832/stream");
+        Stream resolved = api.resolveStreamUrl("https://api.sandbox-soundcloud.com/tracks/2100832/stream", false);
 
         assertThat(resolved.url, equalTo("https://api.sandbox-soundcloud.com/tracks/2100832/stream"));
         assertThat(resolved.streamUrl, containsString("http://ak-media.soundcloud.com/"));
@@ -150,11 +146,29 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
         assertThat(resolved.eTag, equalTo("\"1298a3c38b12dc055ad0f7beb956bc56\""));
     }
 
+    @Test @Ignore /* playcounts not deployed on sandbox */
+    public void shouldResolveStreamUrlAndSkipPlaycountLogging() throws Exception {
+        // need the playcount scope for this to work
+        assertTrue(login(Token.SCOPE_PLAYCOUNT).scoped(Token.SCOPE_PLAYCOUNT));
+
+        int count = Http.getJSON(api.get(Request.to("/tracks/2100832"))).getInt("playback_count");
+        api.resolveStreamUrl("https://api.sandbox-soundcloud.com/tracks/2100832/stream", false);
+        int count2 = Http.getJSON(api.get(Request.to("/tracks/2100832"))).getInt("playback_count");
+
+        assertTrue(String.format("%d !> %d", count2, count), count2 > count);
+
+        // resolve again, this time skipping count
+        api.resolveStreamUrl("https://api.sandbox-soundcloud.com/tracks/2100832/stream", true);
+
+        int count3 = Http.getJSON(api.get(Request.to("/tracks/2100832"))).getInt("playback_count");
+        assertTrue(String.format("%d != %d", count3, count2), count3 == count2);
+    }
+
     @Test
     public void shouldThrowResolverExceptionWhenStreamCannotBeResolved() throws Exception {
         login();
         try {
-            Stream s = api.resolveStreamUrl("https://api.sandbox-soundcloud.com/tracks/999919191/stream");
+            Stream s = api.resolveStreamUrl("https://api.sandbox-soundcloud.com/tracks/999919191/stream", false);
             fail("expected resolver exception, got: "+s);
         } catch (CloudAPI.ResolverException e) {
             // expected
@@ -166,7 +180,7 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
     public void shouldSupportRangeRequest() throws Exception {
         login();
 
-        Stream resolved = api.resolveStreamUrl("https://api.sandbox-soundcloud.com/tracks/2100832/stream");
+        Stream resolved = api.resolveStreamUrl("https://api.sandbox-soundcloud.com/tracks/2100832/stream", false);
         assertThat(resolved.contentLength, is(19643L));
 
         HttpResponse resp = api
