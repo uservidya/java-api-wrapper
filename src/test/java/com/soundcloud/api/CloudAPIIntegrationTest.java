@@ -17,6 +17,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
@@ -259,6 +260,15 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
         assertThat(resp.getStatusLine().getStatusCode(), is(304) /* not-modified */);
     }
 
+    @Test(expected = UnknownHostException.class)
+    public void shouldRespectProxySettings() throws Exception {
+        System.setProperty("http.proxyHost", "http://doesnotexist.example.com");
+        try {
+            login();
+        } finally {
+            System.clearProperty("http.proxyHost");
+        }
+    }
 
     @Test @Ignore
     public void shouldSupportConcurrentConnectionsToApiHost() throws Exception {

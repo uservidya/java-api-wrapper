@@ -2,6 +2,7 @@ package com.soundcloud.api;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -27,6 +28,7 @@ import org.apache.http.conn.params.ConnManagerPNames;
 import org.apache.http.conn.params.ConnManagerParams;
 import org.apache.http.conn.params.ConnPerRoute;
 import org.apache.http.conn.params.ConnPerRouteBean;
+import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.conn.routing.HttpRoute;
 import org.apache.http.conn.routing.HttpRoutePlanner;
 import org.apache.http.conn.scheme.PlainSocketFactory;
@@ -304,6 +306,19 @@ public class ApiWrapper implements CloudAPI, Serializable {
                 }
             }
         });
+
+        // apply system proxy settings
+        final String proxyHost = System.getProperty("http.proxyHost");
+        final String proxyPort = System.getProperty("http.proxyPort");
+        if (proxyHost != null) {
+            int port = 80;
+            try {
+                port = Integer.parseInt(proxyPort);
+            } catch (NumberFormatException ignored) {
+            }
+            params.setParameter(ConnRoutePNames.DEFAULT_PROXY,
+                    new HttpHost(proxyHost, port));
+        }
         return params;
     }
 

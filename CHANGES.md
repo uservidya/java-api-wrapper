@@ -1,3 +1,7 @@
+## 1.1.1-SNAPSHOT tbd
+
+  * Respect system proxy settings
+
 ## 1.1.0 2011-11-09
 
   * Support httpmime-4.1.x (GH-2)
