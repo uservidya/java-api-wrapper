@@ -13,6 +13,8 @@ public interface Endpoints {
     String TRACK_DETAILS       = "/tracks/%d";
     String TRACK_COMMENTS      = "/tracks/%d/comments";
     String TRACK_FAVORITERS    = "/tracks/%d/favoriters";
+    String TRACK_PLAYS         = "/tracks/%d/plays";
+    String TRACK_PERMISSIONS   = "/tracks/%d/permissions";
 
     String USERS               = "/users";
     String USER_DETAILS        = "/users/%d";
@@ -46,5 +48,5 @@ public interface Endpoints {
     String CONNECT             = "/connect";
     String FACEBOOK_CONNECT    = "/connect/via/facebook";
 
-    String PLAYS               = "/plays";
+
 }
