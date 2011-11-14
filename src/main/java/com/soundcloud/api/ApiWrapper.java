@@ -306,7 +306,6 @@ public class ApiWrapper implements CloudAPI, Serializable {
                 }
             }
         });
-
         // apply system proxy settings
         final String proxyHost = System.getProperty("http.proxyHost");
         final String proxyPort = System.getProperty("http.proxyPort");
@@ -316,10 +315,23 @@ public class ApiWrapper implements CloudAPI, Serializable {
                 port = Integer.parseInt(proxyPort);
             } catch (NumberFormatException ignored) {
             }
-            params.setParameter(ConnRoutePNames.DEFAULT_PROXY,
-                    new HttpHost(proxyHost, port));
+            params.setParameter(ConnRoutePNames.DEFAULT_PROXY, new HttpHost(proxyHost, port));
         }
         return params;
+    }
+
+    /**
+     * @param proxy the proxy to use for the wrapper, or null to clear the current one.
+     */
+    public void setProxy(URI proxy) {
+        getHttpClient().getParams().setParameter(
+                ConnRoutePNames.DEFAULT_PROXY,
+                proxy == null ? null : new HttpHost(proxy.getHost(), proxy.getPort(), proxy.getScheme()));
+    }
+
+
+    public boolean isProxySet() {
+        return getHttpClient().getParams().getParameter(ConnRoutePNames.DEFAULT_PROXY) != null;
     }
 
     /**
