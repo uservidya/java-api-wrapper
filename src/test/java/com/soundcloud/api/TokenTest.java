@@ -81,4 +81,21 @@ public class TokenTest {
         assertThat(t.refresh, equalTo("5678"));
         assertNotNull(t.getExpiresIn());
     }
+
+    @Test
+    public void shouldParseJsonWithCustomParameters() throws Exception {
+        Token t = new Token(new JSONObject("{\n" +
+                "    \"access_token\": \"1234\",\n" +
+                "    \"refresh_token\": \"5678\",\n" +
+                "    \"expires_in\":   3600,\n" +
+                "    \"scope\":    \"*\",\n" +
+                "    \"custom1\":    \"foo\",\n" +
+                "    \"soundcloud:user:signup\":    \"baz\",\n" +
+                "    \"custom2\":    23\n" +
+                "}"));
+
+        assertThat(t.customParameters.get("custom1"), equalTo("foo"));
+        assertThat(t.customParameters.get("custom2"), equalTo("23"));
+        assertThat(t.getSignup(), equalTo("baz"));
+    }
 }

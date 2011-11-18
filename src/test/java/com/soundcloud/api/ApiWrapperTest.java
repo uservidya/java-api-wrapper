@@ -418,4 +418,13 @@ public class ApiWrapperTest {
         other.invalidateToken();
         verify(listener).onTokenInvalid(old);
     }
+
+    @Test
+    public void testAddScope() throws Exception {
+        assertThat(ApiWrapper.addScope(new Request(), new String[] { "foo", "bar"}).getParams().get("scope"),
+                equalTo("foo bar"));
+
+        assertFalse(ApiWrapper.addScope(new Request(), new String[] {}).getParams().containsKey("scope"));
+        assertFalse(ApiWrapper.addScope(new Request(), null).getParams().containsKey("scope"));
+    }
 }

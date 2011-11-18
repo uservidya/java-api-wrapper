@@ -6,7 +6,9 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Represents an OAuth2 access/refresh token pair.
@@ -32,6 +34,8 @@ public class Token implements Serializable {
     public String access, refresh, scope;
     public long expiresIn;
 
+    public final Map<String, String> customParameters = new HashMap<String, String>();
+
     /**
      * Constructs a new token with the given sub-tokens
      * @param access   A token used by the client to make authenticated requests on behalf of the resource owner.
@@ -55,13 +59,21 @@ public class Token implements Serializable {
      */
     public Token(JSONObject json) throws IOException {
         try {
-            access = json.getString(ACCESS_TOKEN);
-            if (json.has(REFRESH_TOKEN)) {
-                // refresh token won't be set if we don't expire
-                refresh = json.getString(REFRESH_TOKEN);
-                expiresIn = System.currentTimeMillis() + json.getLong(EXPIRES_IN) * 1000;
+            for (Iterator it = json.keys(); it.hasNext(); ) {
+                String key = it.next().toString();
+                if (ACCESS_TOKEN.equals(key)) {
+                    access = json.getString(ACCESS_TOKEN);
+                } else if (REFRESH_TOKEN.equals(key)) {
+                    // refresh token won't be set if we don't expire
+                    refresh = json.getString(REFRESH_TOKEN);
+                    expiresIn = System.currentTimeMillis() + json.getLong(EXPIRES_IN) * 1000;
+                } else if (SCOPE.equals(key)) {
+                    scope = json.getString(SCOPE);
+                } else {
+                    // custom parameter
+                    customParameters.put(key, json.getString(key));
+                }
             }
-            scope = json.getString(SCOPE);
         } catch (JSONException e) {
             throw new IOException(e.getMessage());
         }
@@ -99,6 +111,11 @@ public class Token implements Serializable {
     /** @return is this token valid */
     public boolean valid() {
         return access != null && (scoped(SCOPE_NON_EXPIRING) || refresh != null);
+    }
+
+    /** indicates whether this token was issued after a signup */
+    public String getSignup() {
+        return customParameters.get("soundcloud:user:signup");
     }
 
     @Override

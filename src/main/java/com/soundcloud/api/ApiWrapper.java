@@ -128,61 +128,64 @@ public class ApiWrapper implements CloudAPI, Serializable {
         this.env = env;
     }
 
-    @Override public Token login(String username, String password) throws IOException {
-        return login(username, password, null);
-    }
-
-    @Override public Token login(String username, String password, String scope) throws IOException {
+    @Override public Token login(String username, String password, String... scopes) throws IOException {
         if (username == null || password == null) {
             throw new IllegalArgumentException("username or password is null");
         }
-        final Request request = Request.to(Endpoints.TOKEN).with(
+        final Request request = addScope(Request.to(Endpoints.TOKEN).with(
                 "grant_type", PASSWORD,
                 "client_id", mClientId,
                 "client_secret", mClientSecret,
                 "username", username,
-                "password", password);
-        if (scope != null) request.add("scope", scope);
+                "password", password), scopes);
         mToken = requestToken(request);
         return mToken;
     }
 
-    @Override public Token authorizationCode(String code) throws IOException {
-        return authorizationCode(code, null);
-    }
 
-    @Override public Token authorizationCode(String code, String scope) throws IOException {
+
+    @Override public Token authorizationCode(String code, String... scopes) throws IOException {
         if (code == null) {
             throw new IllegalArgumentException("username or password is null");
         }
-        final Request request = Request.to(Endpoints.TOKEN).with(
+        final Request request = addScope(Request.to(Endpoints.TOKEN).with(
                 "grant_type", AUTHORIZATION_CODE,
                 "client_id", mClientId,
                 "client_secret", mClientSecret,
                 "redirect_uri", mRedirectUri,
-                "code", code);
-        if (scope != null) request.add("scope", scope);
-
+                "code", code), scopes);
         mToken = requestToken(request);
         return mToken;
     }
 
-    @Override public Token clientCredentials() throws IOException {
-        return clientCredentials(Token.SCOPE_SIGNUP);
-    }
 
-    @Override public Token clientCredentials(String scope) throws IOException {
-        final Request req = Request.to(Endpoints.TOKEN).with(
+    @Override public Token clientCredentials(String... scopes) throws IOException {
+        final Request req = addScope(Request.to(Endpoints.TOKEN).with(
                 "grant_type", CLIENT_CREDENTIALS,
                 "client_id",  mClientId,
-                "client_secret", mClientSecret);
-        if (scope != null) req.add("scope", scope);
+                "client_secret", mClientSecret), scopes);
+
         final Token token = requestToken(req);
-        if (scope != null && !token.scoped(scope)) {
-            throw new InvalidTokenException(-1, "Could not obtain requested scope '"+scope+"' (got: '" +
+        if (scopes != null) {
+            for (String scope : scopes) {
+                if (!token.scoped(scope)) {
+                    throw new InvalidTokenException(-1, "Could not obtain requested scope '"+scope+"' (got: '" +
                     token.scope + "')");
+                }
+            }
         }
         return token;
+    }
+
+    @Override
+    public Token extensionGrantType(String grantType, String... scopes) throws IOException {
+        final Request req = addScope(Request.to(Endpoints.TOKEN).with(
+                "grant_type", grantType,
+                "client_id",  mClientId,
+                "client_secret", mClientSecret), scopes);
+
+        mToken = requestToken(req);
+        return mToken;
     }
 
     @Override public Token refreshToken() throws IOException {
@@ -540,6 +543,18 @@ public class ApiWrapper implements CloudAPI, Serializable {
 
     public void setDefaultContentType(String contentType) {
         mDefaultContentType = contentType;
+    }
+
+    /* package */ static Request addScope(Request request, String[] scopes) {
+        if (scopes != null && scopes.length > 0) {
+            StringBuilder scope = new StringBuilder();
+            for (int i=0; i<scopes.length; i++) {
+                scope.append(scopes[i]);
+                if (i < scopes.length-1) scope.append(" ");
+            }
+            request.add("scope", scope.toString());
+        }
+        return request;
     }
 
     /**

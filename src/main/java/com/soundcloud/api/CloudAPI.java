@@ -13,12 +13,17 @@ import java.net.URI;
  * @see ApiWrapper
  */
 public interface CloudAPI {
-    // grant types
+    // standard oauth2 grant types
     String PASSWORD           = "password";
     String AUTHORIZATION_CODE = "authorization_code";
     String REFRESH_TOKEN      = "refresh_token";
-    String OAUTH1_TOKEN       = "oauth1_token";
     String CLIENT_CREDENTIALS = "client_credentials";
+
+    // custom soundcloud
+    String OAUTH1_TOKEN       = "oauth1_token";
+
+    // oauth2 extension grant types
+    String FACEBOOK_GRANT_TYPE = "urn:soundcloud:oauth2:grant-type:facebook&access_token=";
 
     // other constants
     String REALM              = "SoundCloud";
@@ -26,17 +31,6 @@ public interface CloudAPI {
     String VERSION            = "1.1.0";
     String USER_AGENT         = "SoundCloud Java Wrapper ("+VERSION+")";
 
-    /**
-     * Request a token using <a href="http://tools.ietf.org/html/draft-ietf-oauth-v2-10#section-4.1.2">
-     * Resource Owner Password Credentials</a>.
-     *
-     * @param username SoundCloud username
-     * @param password SoundCloud password
-     * @return a valid token
-     * @throws com.soundcloud.api.CloudAPI.InvalidTokenException invalid token
-     * @throws IOException In case of network/server errors
-     */
-    Token login(String username, String password) throws IOException;
 
     /**
      * Request a token using <a href="http://tools.ietf.org/html/draft-ietf-oauth-v2-10#section-4.1.2">
@@ -44,13 +38,13 @@ public interface CloudAPI {
      *
      * @param username SoundCloud username
      * @param password SoundCloud password
-     * @param scope    the desired scope
+     * @param scopes   the desired scope(s), or empty for default scope
      * @return a valid token
      * @throws com.soundcloud.api.CloudAPI.InvalidTokenException
      *                     invalid token
      * @throws IOException In case of network/server errors
      */
-    Token login(String username, String password, String scope) throws IOException;
+    Token login(String username, String password, String... scopes) throws IOException;
 
 
     /**
@@ -58,23 +52,13 @@ public interface CloudAPI {
      * Authorization Code</a>, requesting a default scope.
      *
      * @param code the authorization code
+     * @param scopes   the desired scope(s), or empty for default scope
      * @return a valid token
      * @throws com.soundcloud.api.CloudAPI.InvalidTokenException invalid token
      * @throws IOException In case of network/server errors
      */
-    Token authorizationCode(String code) throws IOException;
+    Token authorizationCode(String code, String... scopes) throws IOException;
 
-    /**
-     * Request a token using <a href="http://tools.ietf.org/html/draft-ietf-oauth-v2-10#section-4.1.1">
-     * Authorization Code</a> with a specified scope.
-     *
-     * @param code the authorization code
-     * @param scope the desired scope
-     * @return a valid token
-     * @throws com.soundcloud.api.CloudAPI.InvalidTokenException invalid token
-     * @throws IOException In case of network/server errors
-     */
-    Token authorizationCode(String code, String scope) throws IOException;
 
     /**
      * Request a "signup" token using <a href="http://tools.ietf.org/html/draft-ietf-oauth-v2-15#section-4.4">
@@ -85,27 +69,23 @@ public interface CloudAPI {
      * Also note that not all apps are allowed to request this token type (the wrapper throws
      * InvalidTokenException in this case).
      *
+     * @param scopes   the desired scope(s), or empty for default scope
      * @return a valid token
      * @throws IOException IO/Error
      * @throws com.soundcloud.api.CloudAPI.InvalidTokenException if requested scope is not available
      */
-    Token clientCredentials() throws IOException;
+    Token clientCredentials(String... scopes) throws IOException;
 
-     /**
-     * Requests a token using <a href="http://tools.ietf.org/html/draft-ietf-oauth-v2-15#section-4.4">
-     * Client Credentials</a>.
-     *
-     * Note that this token is <b>not</b> set as the current token in the wrapper - it should only be used
-     * for one request (typically the signup / user creation request).
-     * Also note that not all apps are allowed to request for all scopes (the wrapper throws
-     * InvalidTokenException in this case).
-     *
-     * @param scope the requested scope
-     * @return a valid token
-     * @throws IOException IO/Error
-     * @throws com.soundcloud.api.CloudAPI.InvalidTokenException if requested scope is not available
+
+    /**
+     * Request a token using an <a href="http://tools.ietf.org/html/draft-ietf-oauth-v2-22#section-4.5">
+     * extension grant type</a>.
+     * @param grantType
+     * @param scopes
+     * @return
+     * @throws IOException
      */
-    Token clientCredentials(String scope) throws IOException;
+    Token extensionGrantType(String grantType, String... scopes) throws IOException;
 
     /**
      * Tries to refresh the currently used access token with the refresh token.
@@ -223,7 +203,7 @@ public interface CloudAPI {
      * </ul>
      * @param  options auth endpoint to use (leave out for default), requested scope (leave out for default)
      * @return the URI to open in a browser/WebView etc.
-     * @see CloudAPI#authorizationCode(String)
+     * @see CloudAPI#authorizationCode(String, String...)
      */
     URI authorizationCodeUrl(String... options);
 

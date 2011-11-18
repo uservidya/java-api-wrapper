@@ -48,12 +48,8 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
                 Env.SANDBOX);
     }
 
-    private Token login() throws IOException {
-        return login(null);
-    }
-
-    private Token login(String scope) throws IOException {
-        return api.login("api-testing", "testing", scope);
+    private Token login(String... scopes) throws IOException {
+        return api.login("api-testing", "testing", scopes);
     }
 
     @Test
@@ -91,6 +87,13 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
     public void shouldNotGetASignupTokenWhenInofficialApp() throws Exception {
         login();
         api.clientCredentials();
+    }
+
+    @Test(expected = CloudAPI.InvalidTokenException.class)
+    public void shouldGetATokenUsingExtensionGrantTypes() throws Exception {
+        // TODO
+        String fbToken = "fbToken";
+        Token token = api.extensionGrantType(CloudAPI.FACEBOOK_GRANT_TYPE +fbToken);
     }
 
     @Test

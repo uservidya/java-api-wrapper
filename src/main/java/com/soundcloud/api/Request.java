@@ -305,6 +305,14 @@ public class Request implements Iterable<NameValuePair> {
         return this;
     }
 
+    public Map<String, String> getParams() {
+        Map<String, String> params = new HashMap<String,String>();
+        for (NameValuePair p : mParams) {
+            params.put(p.getName(), p.getValue());
+        }
+        return params;
+    }
+
     /**
      * Builds a request with the given set of parameters and files.
      * @param method    the type of request to use
