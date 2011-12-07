@@ -292,6 +292,12 @@ public class RequestTest {
         assertThat(copy.getToken(),equalTo(orig.getToken()));
     }
 
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldNotAcceptNullStringInCtor() throws Exception {
+        new Request((String) null);
+    }
+
     @Test
     public void shouldNotModifyOriginal() {
         Request orig = new Request("/foo").with("1", 2, "3",4);

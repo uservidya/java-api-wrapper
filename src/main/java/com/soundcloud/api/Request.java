@@ -64,7 +64,15 @@ public class Request implements Iterable<NameValuePair> {
      * @param resource the base resource
      */
     public Request(String resource) {
-        if (resource != null && resource.contains("?")) {
+        if (resource == null) throw new IllegalArgumentException("resource is null");
+
+        // make sure paths start with a slash
+        if (!(resource.startsWith("http:") || resource.startsWith("https:"))
+             && !resource.startsWith("/")) {
+            resource = "/"+resource;
+        }
+
+        if (resource.contains("?")) {
             String query = resource.substring(Math.min(resource.length(), resource.indexOf("?")+1),
                     resource.length());
             for (String s : query.split("&")) {

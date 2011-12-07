@@ -1,5 +1,6 @@
 package com.soundcloud.api;
 
+import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
@@ -62,6 +63,9 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
 
         int status = resp.getStatusLine().getStatusCode();
         assertThat(status, is(201));
+
+        Header location = resp.getFirstHeader("Location");
+        assertNotNull(location);
     }
 
     @Test
@@ -104,6 +108,14 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
         assertThat(resp.getStatusLine().getStatusCode(), is(401));
     }
 
+
+    @Test
+    public void shouldWorkWithRelativeUrls() throws Exception {
+        login();
+        HttpResponse resp = api.get(Request.to("me"));
+        assertThat(resp.getStatusLine().getStatusCode(), is(200));
+    }
+
     @Test
     public void shouldRefreshAutomaticallyWhenTokenExpired() throws Exception {
         login();
@@ -140,14 +152,13 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
     @Test
     public void shouldResolveStreamUrls() throws Exception {
         login();
+        Stream resolved = api.resolveStreamUrl("https://api.sandbox-soundcloud.com/tracks/2112881/stream", false);
 
-        Stream resolved = api.resolveStreamUrl("https://api.sandbox-soundcloud.com/tracks/2100832/stream", false);
-
-        assertThat(resolved.url, equalTo("https://api.sandbox-soundcloud.com/tracks/2100832/stream"));
+        assertThat(resolved.url, equalTo("https://api.sandbox-soundcloud.com/tracks/2112881/stream"));
         assertThat(resolved.streamUrl, containsString("http://ak-media.soundcloud.com/"));
 
         assertTrue("expire should be in the future", resolved.expires > System.currentTimeMillis());
-        assertThat(resolved.eTag, equalTo("\"1298a3c38b12dc055ad0f7beb956bc56\""));
+        assertThat(resolved.eTag, equalTo("\"a1782cf9976c2bc26988929e956def26\""));
     }
 
     @Test @Ignore /* playcounts not deployed on sandbox */
@@ -184,7 +195,7 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
     public void shouldSupportRangeRequest() throws Exception {
         login();
 
-        Stream resolved = api.resolveStreamUrl("https://api.sandbox-soundcloud.com/tracks/2100832/stream", false);
+        Stream resolved = api.resolveStreamUrl("https://api.sandbox-soundcloud.com/tracks/2112881/stream", false);
         assertThat(resolved.contentLength, is(19643L));
 
         HttpResponse resp = api
