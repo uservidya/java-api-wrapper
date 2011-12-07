@@ -39,6 +39,7 @@ public interface Endpoints {
     String MY_FOLLOWING        = "/me/followings/%d";
     String MY_CONFIRMATION     = "/me/email-confirmations";
     String MY_FRIENDS          = "/me/connections/friends";
+    String MY_DEVICES          = "/me/devices";
 
     String SUGGESTED_USERS     = "/users/suggested";
 
