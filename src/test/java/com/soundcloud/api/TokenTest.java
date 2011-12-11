@@ -90,7 +90,7 @@ public class TokenTest {
                 "    \"expires_in\":   3600,\n" +
                 "    \"scope\":    \"*\",\n" +
                 "    \"custom1\":    \"foo\",\n" +
-                "    \"soundcloud:user:signup\":    \"baz\",\n" +
+                "    \"soundcloud:user:sign-up\":    \"baz\",\n" +
                 "    \"custom2\":    23\n" +
                 "}"));
 

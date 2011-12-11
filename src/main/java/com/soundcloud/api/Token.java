@@ -115,7 +115,7 @@ public class Token implements Serializable {
 
     /** indicates whether this token was issued after a signup */
     public String getSignup() {
-        return customParameters.get("soundcloud:user:signup");
+        return customParameters.get("soundcloud:user:sign-up");
     }
 
     @Override
