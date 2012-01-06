@@ -153,6 +153,16 @@ public class Request implements Iterable<NameValuePair> {
     }
 
     /**
+     * @param resource the new resource
+     * @return a new request with identical parameters except for the specified resource.
+     */
+    public Request newResource(String resource) {
+        Request newRequest = new Request(this);
+        newRequest.mResource = resource;
+        return newRequest;
+    }
+
+    /**
      * The request should be made with a specific token.
      * @param token the token
      * @return this
@@ -201,7 +211,7 @@ public class Request implements Iterable<NameValuePair> {
      * Registers a file to be uploaded with a POST or PUT request.
      * @param name  the name of the parameter
      * @param file  the file to be submitted
-     * @param fileName  the name of the uploaded file (overrides file parameter)
+     * @param fileName  the name of the uploaded file (over rides file parameter)
      * @return this
      */
     public Request withFile(String name, File file, String fileName) {
@@ -242,7 +252,6 @@ public class Request implements Iterable<NameValuePair> {
     @Deprecated public Request withFile(String name, ByteBuffer data) {
         return withFile(name, data, "upload");
     }
-
 
     /**
      * Registers binary data to be uploaded with a POST or PUT request.
@@ -427,7 +436,6 @@ public class Request implements Iterable<NameValuePair> {
         return listener;
     }
 
-
     /**
      * Updates about the amount of bytes already transferred.
      */
@@ -439,9 +447,7 @@ public class Request implements Iterable<NameValuePair> {
         public void transferred(long amount) throws IOException;
     }
 
-
-
-    static class ByteBufferBody extends AbstractContentBody {
+    /* package */ static class ByteBufferBody extends AbstractContentBody {
         private ByteBuffer mBuffer;
 
         public ByteBufferBody(ByteBuffer buffer) {

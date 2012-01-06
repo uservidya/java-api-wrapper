@@ -60,6 +60,15 @@ public class RequestTest {
     }
 
     @Test
+    public void shouldCopyRequestWithNewResource() throws Exception {
+        Request p = new Request().with("foo", 100, "baz", 22.3f);
+        Request p2 = p.newResource("baz");
+        assertThat(p, not(sameInstance(p2)));
+        assertThat(p2.toString(),
+            equalTo("Request{mResource='baz', params=[foo=100, baz=22.3], files=null, entity=null, mToken=null, listener=null}"));
+    }
+
+    @Test
     public void shouldImplementIterable() throws Exception {
         Request p = new Request().with("foo", 100, "baz", 22.3f);
         Iterator<NameValuePair> it = p.iterator();
