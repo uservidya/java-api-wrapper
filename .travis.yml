@@ -1,5 +1,5 @@
 language: java
-install: gradle gradle assemble
+install: gradle assemble
 script: gradle check
 notifications:
   email: false
