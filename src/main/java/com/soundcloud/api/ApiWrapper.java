@@ -548,8 +548,13 @@ public class ApiWrapper implements CloudAPI, Serializable {
                 return execute(req);
             } else {
                 req.abort();
-                throw new IOException(e);
+                throw new BrokenHttpClientException(e);
             }
+        } catch (IllegalArgumentException e) {
+            // more brokenness
+            // cf. http://code.google.com/p/android/issues/detail?id=2690
+            req.abort();
+            throw new BrokenHttpClientException(e);
         }
     }
 
@@ -652,5 +657,13 @@ public class ApiWrapper implements CloudAPI, Serializable {
         return new DefaultRequestDirector(requestExec, conman, reustrat, kastrat, rouplan,
                 httpProcessor, retryHandler, redirectHandler, targetAuthHandler, proxyAuthHandler,
                 stateHandler, params);
+    }
+
+    public static class BrokenHttpClientException extends IOException {
+        private static final long serialVersionUID = -4764332412926419313L;
+
+        BrokenHttpClientException(Throwable throwable) {
+            super(throwable);
+        }
     }
 }

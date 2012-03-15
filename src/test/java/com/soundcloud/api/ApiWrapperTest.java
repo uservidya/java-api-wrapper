@@ -4,11 +4,13 @@ import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.fail;
 import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import com.soundcloud.api.fakehttp.FakeHttpLayer;
 import com.soundcloud.api.fakehttp.RequestMatcher;
@@ -20,10 +22,13 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.AuthenticationHandler;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.HttpRequestRetryHandler;
 import org.apache.http.client.RedirectHandler;
 import org.apache.http.client.RequestDirector;
 import org.apache.http.client.UserTokenHandler;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.conn.ConnectionKeepAliveStrategy;
 import org.apache.http.conn.routing.HttpRoutePlanner;
@@ -444,4 +449,40 @@ public class ApiWrapperTest {
         assertEquals(URI.create("https://foo.com:12345"), api.getProxy());
     }
 
+    @Test @SuppressWarnings("serial")
+    public void shouldHandleBrokenHttpClientNPE() throws Exception {
+        final HttpClient client = mock(HttpClient.class);
+        ApiWrapper broken = new ApiWrapper("invalid", "invalid", URI.create("redirect://me"), null, Env.SANDBOX) {
+            @Override
+            public HttpClient getHttpClient() {
+                return client;
+            }
+        };
+        when(client.execute(any(HttpHost.class), any(HttpUriRequest.class))).thenThrow(new NullPointerException());
+        try {
+            broken.execute(new HttpGet("/foo"));
+            fail("expected BrokenHttpClientException");
+        } catch (ApiWrapper.BrokenHttpClientException expected) {
+            // make sure client retried request
+            verify(client, times(2)).execute(any(HttpHost.class), any(HttpUriRequest.class));
+        }
+    }
+
+    @Test @SuppressWarnings("serial")
+    public void shouldHandleBrokenHttpClientIAE() throws Exception {
+        final HttpClient client = mock(HttpClient.class);
+        ApiWrapper broken = new ApiWrapper("invalid", "invalid", URI.create("redirect://me"), null, Env.SANDBOX) {
+            @Override
+            public HttpClient getHttpClient() {
+                return client;
+            }
+        };
+        when(client.execute(any(HttpHost.class), any(HttpUriRequest.class))).thenThrow(new IllegalArgumentException());
+        try {
+            broken.execute(new HttpGet("/foo"));
+            fail("expected BrokenHttpClientException");
+        } catch (ApiWrapper.BrokenHttpClientException expected) {
+            verify(client, times(1)).execute(any(HttpHost.class), any(HttpUriRequest.class));
+        }
+    }
 }
