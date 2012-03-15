@@ -241,7 +241,8 @@ public class ApiWrapper implements CloudAPI, Serializable {
      * @return a valid URI
      */
     public URI getURI(Request request, boolean api, boolean secure) {
-        return URI.create((api ? env.getResourceHost(secure) : env.getAuthResourceHost(secure)).toURI()).resolve(request.toUrl());
+        return URI.create((api ? env.getResourceHost(secure) : env.getAuthResourceHost(secure)).toURI())
+                  .resolve(request.toUrl());
     }
 
     /**
@@ -328,14 +329,32 @@ public class ApiWrapper implements CloudAPI, Serializable {
      * @param proxy the proxy to use for the wrapper, or null to clear the current one.
      */
     public void setProxy(URI proxy) {
-        getHttpClient().getParams().setParameter(
-                ConnRoutePNames.DEFAULT_PROXY,
-                proxy == null ? null : new HttpHost(proxy.getHost(), proxy.getPort(), proxy.getScheme()));
+        final HttpHost host;
+        if (proxy != null) {
+            Scheme scheme = getHttpClient()
+                .getConnectionManager()
+                .getSchemeRegistry()
+                .getScheme(proxy.getScheme());
+
+            host = new HttpHost(proxy.getHost(), scheme.resolvePort(proxy.getPort()), scheme.getName());
+        } else {
+            host = null;
+        }
+        getHttpClient().getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, host);
     }
 
 
+    public URI getProxy() {
+        Object proxy = getHttpClient().getParams().getParameter(ConnRoutePNames.DEFAULT_PROXY);
+        if (proxy instanceof HttpHost) {
+            return URI.create(((HttpHost)proxy).toURI());
+        } else {
+            return null;
+        }
+    }
+
     public boolean isProxySet() {
-        return getHttpClient().getParams().getParameter(ConnRoutePNames.DEFAULT_PROXY) != null;
+        return getProxy() != null;
     }
 
     /**

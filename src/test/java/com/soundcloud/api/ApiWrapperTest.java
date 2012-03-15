@@ -1,5 +1,7 @@
 package com.soundcloud.api;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.fail;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
@@ -427,4 +429,19 @@ public class ApiWrapperTest {
         assertFalse(ApiWrapper.addScope(new Request(), new String[] {}).getParams().containsKey("scope"));
         assertFalse(ApiWrapper.addScope(new Request(), null).getParams().containsKey("scope"));
     }
+
+    @Test
+    public void shouldSetProxy() throws Exception {
+        assertFalse(api.isProxySet());
+        URI proxy = URI.create("https://foo.com");
+        assertEquals(proxy.getPort(), -1);
+        api.setProxy(proxy);
+        assertTrue(api.isProxySet());
+        assertEquals("https://foo.com:443", api.getProxy().toString());
+
+
+        api.setProxy(URI.create("https://foo.com:12345"));
+        assertEquals(URI.create("https://foo.com:12345"), api.getProxy());
+    }
+
 }

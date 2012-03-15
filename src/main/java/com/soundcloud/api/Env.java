@@ -6,7 +6,6 @@ import org.apache.http.HttpHost;
  * The environment to operate against.
  * Use SANDBOX for testing your app, and LIVE for production applications.
  */
-@SuppressWarnings({"UnusedDeclaration"})
 public enum Env {
     /** The main production site, http://soundcloud.com */
     LIVE("api.soundcloud.com", "soundcloud.com"),
