@@ -20,6 +20,7 @@ import org.apache.http.client.methods.HttpHead;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.params.HttpClientParams;
 import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.conn.ClientConnectionManager;
@@ -516,8 +517,21 @@ public class ApiWrapper implements CloudAPI, Serializable {
      * @return the HTTP response
      * @throws java.io.IOException network error etc.
      */
-    public HttpResponse execute(HttpRequest req) throws IOException {
-        return getHttpClient().execute(env.sslResourceHost, addHeaders(req));
+    public HttpResponse execute(HttpUriRequest req) throws IOException {
+        try {
+            return getHttpClient().execute(env.sslResourceHost, addHeaders(req));
+        } catch (NullPointerException e) {
+            // this is a workaround for a broken httpclient version,
+            // cf. http://code.google.com/p/android/issues/detail?id=5255
+            // NPE in DefaultRequestDirector.java:456
+            if (!req.isAborted() && req.getParams().isParameterFalse("npe-retried")) {
+                req.getParams().setBooleanParameter("npe-retried", true);
+                return execute(req);
+            } else {
+                req.abort();
+                throw new IOException(e);
+            }
+        }
     }
 
     protected HttpResponse execute(Request req, Class<? extends HttpRequestBase> reqType) throws IOException {
