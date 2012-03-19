@@ -3,7 +3,6 @@ package com.soundcloud.api;
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
 import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.auth.AUTH;
@@ -532,28 +531,36 @@ public class ApiWrapper implements CloudAPI, Serializable {
 
     /**
      * Execute an API request, adds the necessary headers.
-     * @param req the HTTP request
+     * @param request the HTTP request
      * @return the HTTP response
      * @throws java.io.IOException network error etc.
      */
-    public HttpResponse execute(HttpUriRequest req) throws IOException {
+    public HttpResponse execute(HttpUriRequest request) throws IOException {
+        return safeExecute(env.sslResourceHost, addHeaders(request));
+    }
+
+    public HttpResponse safeExecute(HttpHost target, HttpUriRequest request) throws IOException {
+        if (target == null) {
+            target = determineTarget(request);
+        }
+
         try {
-            return getHttpClient().execute(env.sslResourceHost, addHeaders(req));
+            return getHttpClient().execute(target, request);
         } catch (NullPointerException e) {
             // this is a workaround for a broken httpclient version,
             // cf. http://code.google.com/p/android/issues/detail?id=5255
             // NPE in DefaultRequestDirector.java:456
-            if (!req.isAborted() && req.getParams().isParameterFalse("npe-retried")) {
-                req.getParams().setBooleanParameter("npe-retried", true);
-                return execute(req);
+            if (!request.isAborted() && request.getParams().isParameterFalse("npe-retried")) {
+                request.getParams().setBooleanParameter("npe-retried", true);
+                return safeExecute(target, request);
             } else {
-                req.abort();
+                request.abort();
                 throw new BrokenHttpClientException(e);
             }
         } catch (IllegalArgumentException e) {
             // more brokenness
             // cf. http://code.google.com/p/android/issues/detail?id=2690
-            req.abort();
+            request.abort();
             throw new BrokenHttpClientException(e);
         }
     }
@@ -561,6 +568,21 @@ public class ApiWrapper implements CloudAPI, Serializable {
     protected HttpResponse execute(Request req, Class<? extends HttpRequestBase> reqType) throws IOException {
         if (debugRequests) System.err.println(reqType.getSimpleName()+" "+req);
         return execute(req.buildRequest(reqType));
+    }
+
+
+    protected HttpHost determineTarget(HttpUriRequest request) {
+        // A null target may be acceptable if there is a default target.
+        // Otherwise, the null target is detected in the director.
+        URI requestURI = request.getURI();
+        if (requestURI.isAbsolute()) {
+            return new HttpHost(
+                    requestURI.getHost(),
+                    requestURI.getPort(),
+                    requestURI.getScheme());
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -618,7 +640,7 @@ public class ApiWrapper implements CloudAPI, Serializable {
     }
 
     /** Adds an OAuth2 header to a given request */
-    protected HttpRequest addAuthHeader(HttpRequest request) {
+    protected HttpUriRequest addAuthHeader(HttpUriRequest request) {
         if (!request.containsHeader(AUTH.WWW_AUTH_RESP)) {
             request.addHeader(createOAuthHeader(getToken()));
         }
@@ -626,7 +648,7 @@ public class ApiWrapper implements CloudAPI, Serializable {
     }
 
     /** Forces JSON */
-    protected HttpRequest addAcceptHeader(HttpRequest request) {
+    protected HttpUriRequest addAcceptHeader(HttpUriRequest request) {
         if (!request.containsHeader("Accept")) {
             request.addHeader("Accept", getDefaultContentType());
         }
@@ -634,7 +656,7 @@ public class ApiWrapper implements CloudAPI, Serializable {
     }
 
     /** Adds all required headers to the request */
-    protected HttpRequest addHeaders(HttpRequest req) {
+    protected HttpUriRequest addHeaders(HttpUriRequest req) {
         return addAcceptHeader(
                 addAuthHeader(req));
     }
@@ -659,11 +681,4 @@ public class ApiWrapper implements CloudAPI, Serializable {
                 stateHandler, params);
     }
 
-    public static class BrokenHttpClientException extends IOException {
-        private static final long serialVersionUID = -4764332412926419313L;
-
-        BrokenHttpClientException(Throwable throwable) {
-            super(throwable);
-        }
-    }
 }

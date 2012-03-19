@@ -1,7 +1,9 @@
 package com.soundcloud.api;
 
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpUriRequest;
 
 import java.io.IOException;
 import java.net.URI;
@@ -157,6 +159,17 @@ public interface CloudAPI {
     HttpClient getHttpClient();
 
     /**
+     * Generic execute method, with added workarounds for various HTTPClient bugs.
+     *
+     * @param target the target host (can be null)
+     * @param request the request
+     * @return the HTTP response
+     * @throws IOException network errors
+     * @throws BrokenHttpClientException in case of HTTPClient framework bugs
+     */
+    HttpResponse safeExecute(HttpHost target, HttpUriRequest request) throws IOException;
+
+    /**
      * Resolve the given SoundCloud URI
      *
      * @param uri SoundCloud model URI, e.g. http://soundcloud.com/bob
@@ -269,6 +282,15 @@ public interface CloudAPI {
         @Override
         public String getMessage() {
             return super.getMessage()+" "+(response != null ? response.getStatusLine() : "");
+        }
+    }
+
+
+    class BrokenHttpClientException extends IOException {
+        private static final long serialVersionUID = -4764332412926419313L;
+
+        BrokenHttpClientException(Throwable throwable) {
+            super(throwable);
         }
     }
 }

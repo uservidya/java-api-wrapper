@@ -485,4 +485,34 @@ public class ApiWrapperTest {
             verify(client, times(1)).execute(any(HttpHost.class), any(HttpUriRequest.class));
         }
     }
+
+    @SuppressWarnings("serial")
+    @Test
+    public void shouldSafeExecute() throws Exception {
+
+        final HttpClient client = mock(HttpClient.class);
+        ApiWrapper broken = new ApiWrapper("invalid", "invalid", URI.create("redirect://me"), null, Env.SANDBOX) {
+            @Override
+            public HttpClient getHttpClient() {
+                return client;
+            }
+        };
+        when(client.execute(any(HttpHost.class), any(HttpUriRequest.class))).thenThrow(new IllegalArgumentException());
+        try {
+            broken.safeExecute(null, new HttpGet("/foo"));
+            fail("expected BrokenHttpClientException");
+        } catch (ApiWrapper.BrokenHttpClientException expected) {
+            verify(client, times(1)).execute(any(HttpHost.class), any(HttpUriRequest.class));
+        }
+
+        reset(client);
+        when(client.execute(any(HttpHost.class), any(HttpUriRequest.class))).thenThrow(new NullPointerException());
+        try {
+            broken.execute(new HttpGet("/foo"));
+            fail("expected BrokenHttpClientException");
+        } catch (ApiWrapper.BrokenHttpClientException expected) {
+            // make sure client retried request
+            verify(client, times(2)).execute(any(HttpHost.class), any(HttpUriRequest.class));
+        }
+    }
 }
