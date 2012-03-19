@@ -261,7 +261,7 @@ public class ApiWrapper implements CloudAPI, Serializable {
      * @throws com.soundcloud.api.CloudAPI.InvalidTokenException unauthorized
      */
     protected Token requestToken(Request request) throws IOException {
-        HttpResponse response = getHttpClient().execute(env.sslResourceHost, request.buildRequest(HttpPost.class));
+        HttpResponse response = safeExecute(env.sslResourceHost, request.buildRequest(HttpPost.class));
         final int status = response.getStatusLine().getStatusCode();
 
         if (status == HttpStatus.SC_OK) {
