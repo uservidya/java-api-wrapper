@@ -469,7 +469,7 @@ public class ApiWrapper implements CloudAPI, Serializable {
             Header location = resp.getFirstHeader("Location");
             if (location != null && location.getValue() != null) {
                 final String headRedirect = location.getValue();
-                resp = getHttpClient().execute(new HttpHead(headRedirect));
+                resp = safeExecute(null, new HttpHead(headRedirect));
                 if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                     Stream stream = new Stream(url, headRedirect, resp);
                     // need to do another GET request to have a URL ready for client usage
