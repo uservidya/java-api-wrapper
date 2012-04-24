@@ -11,7 +11,7 @@ repositories   { mavenCentral() }
 
 sourceSets {
   examples {
-    compileClasspath = sourceSets.main.classes + sourceSets.main.runtimeClasspath
+    compileClasspath = sourceSets.main.output + sourceSets.main.runtimeClasspath
   }
 }
 
@@ -59,7 +59,7 @@ uploadArchives {
 
 [compileJava, compileTestJava]*.options*.compilerArgs = ['-Xlint:all']
 
-httpDebug = ['org.apache.commons.logging.Log': 'org.apache.commons.logging.impl.SimpleLog',
+ext.httpDebug = ['org.apache.commons.logging.Log': 'org.apache.commons.logging.impl.SimpleLog',
              'org.apache.commons.logging.simplelog.showdatetime': 'true',
              'org.apache.commons.logging.simplelog.log.org.apache.http': 'DEBUG',
              'org.apache.commons.logging.simplelog.log.org.apache.http.wire': 'ERROR']
@@ -68,8 +68,8 @@ def example(name, mainClass, arguments) {
   task(name, dependsOn: ['compileJava', 'compileExamplesJava']) << {
     javaexec {
       main = 'com.soundcloud.api.examples.'+mainClass
-      classpath = sourceSets.main.runtimeClasspath + sourceSets.examples.classes
-      if (logger.debugEnabled) systemProperties httpDebug
+      classpath = sourceSets.main.runtimeClasspath + sourceSets.examples.output
+      if (logger.debugEnabled) systemProperties ext.httpDebug
       args arguments.call()
     }
   }
@@ -101,17 +101,17 @@ task doc(type: Javadoc) {
 
 task jarAll(type: Jar) {
   description = "Build a jar file with all dependencies"
-  dependsOn configurations.runtime, sourceSets.main.classes, sourceSets.examples.classes
+  dependsOn configurations.runtime, sourceSets.main.output, sourceSets.examples.output
   archiveName = project.name + "-" + version +"-all.jar"
-  from { (configurations.runtime + sourceSets.main.classes + sourceSets.examples.classes ).collect {
+  from { (configurations.runtime + sourceSets.main.output + sourceSets.examples.output ).collect {
     it.isDirectory() ? it : zipTree(it) }
   }
 }
 
 def getAuth(repo_id) {
-  m2_settings = new File("${System.getProperty('user.home')}/.m2/settings.xml")
-  if (m2_settings.exists()) {
-    settings = new XmlSlurper().parse(m2_settings)
+  ext.m2_settings = new File("${System.getProperty('user.home')}/.m2/settings.xml")
+  if (ext.m2_settings.exists()) {
+    settings = new XmlSlurper().parse(ext.m2_settings)
     repo = settings.servers.server.find { it.id.text() == repo_id }
     if (repo != null) return [userName: repo.username.text(), password: repo.password.text()]
    }
@@ -119,5 +119,5 @@ def getAuth(repo_id) {
 }
 
 task printDebug << {
-  println httpDebug.collect { "-D"+it.key+"="+it.value }.join(' ')
+  println ext.httpDebug.collect { "-D"+it.key+"="+it.value }.join(' ')
 }
