@@ -290,7 +290,8 @@ public interface CloudAPI {
         private static final long serialVersionUID = -4764332412926419313L;
 
         BrokenHttpClientException(Throwable throwable) {
-            super(throwable);
+            super(throwable.getMessage());
+            initCause(throwable);
         }
     }
 }
