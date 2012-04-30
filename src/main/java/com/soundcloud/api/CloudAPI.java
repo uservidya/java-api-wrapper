@@ -271,7 +271,7 @@ public interface CloudAPI {
         }
 
         public ResolverException(Throwable throwable, HttpResponse response) {
-            super(throwable.getMessage());
+            super(throwable == null ? null : throwable.toString());
             initCause(throwable);
             this.response = response;
         }
@@ -286,12 +286,11 @@ public interface CloudAPI {
         }
     }
 
-
     class BrokenHttpClientException extends IOException {
         private static final long serialVersionUID = -4764332412926419313L;
 
         BrokenHttpClientException(Throwable throwable) {
-            super(throwable.getMessage());
+            super(throwable == null ? null : throwable.toString());
             initCause(throwable);
         }
     }
