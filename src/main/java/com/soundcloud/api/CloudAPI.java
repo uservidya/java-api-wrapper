@@ -271,7 +271,8 @@ public interface CloudAPI {
         }
 
         public ResolverException(Throwable throwable, HttpResponse response) {
-            super(throwable);
+            super(throwable.getMessage());
+            initCause(throwable);
             this.response = response;
         }
 
