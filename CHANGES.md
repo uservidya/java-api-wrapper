@@ -1,6 +1,9 @@
-## 1.1.1-SNAPSHOT tbd
+## 1.1.1 2012-04-30
 
   * Respect system proxy settings
+  * Added skip_logging parameter to resolveStreamUrl
+  * Added workarounds for some HTTPClient bugs
+  * Fixed some Android compatibility problems (IOException constructor)
 
 ## 1.1.0 2011-11-09
 
