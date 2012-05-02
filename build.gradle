@@ -109,10 +109,10 @@ task jarAll(type: Jar) {
 }
 
 def getAuth(repo_id) {
-  ext.m2_settings = new File("${System.getProperty('user.home')}/.m2/settings.xml")
-  if (ext.m2_settings.exists()) {
-    settings = new XmlSlurper().parse(ext.m2_settings)
-    repo = settings.servers.server.find { it.id.text() == repo_id }
+  def m2_settings = new File("${System.getProperty('user.home')}/.m2/settings.xml")
+  if (m2_settings.exists()) {
+    def settings = new XmlSlurper().parse(m2_settings)
+    def repo = settings.servers.server.find { it.id.text() == repo_id }
     if (repo != null) return [userName: repo.username.text(), password: repo.password.text()]
    }
    [:]
