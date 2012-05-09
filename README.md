@@ -249,6 +249,8 @@ Includes portions of code (c) 2010 Xtreme Labs and Pivotal Labs and (c) 2009 urb
 
 See LICENSE for details.
 
+[![Build Status](https://secure.travis-ci.org/soundcloud/java-api-wrapper.png?branch=master)](http://travis-ci.org/soundcloud/java-api-wrapper)
+
 [gradle]: http://www.gradle.org/
 [urbanstew]: http://urbanstew.org/
 [Apache HttpClient]: http://hc.apache.org/httpcomponents-client-ga/
