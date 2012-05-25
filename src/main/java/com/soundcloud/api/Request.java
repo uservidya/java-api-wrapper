@@ -424,7 +424,7 @@ public class Request implements Iterable<NameValuePair> {
         }
     }
 
-    static String formatRange(long... range) {
+    public static String formatRange(long... range) {
         switch (range.length) {
             case 0: return "bytes=0-";
             case 1:

@@ -16,6 +16,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.hamcrest.CoreMatchers;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -43,6 +44,18 @@ public class RequestTest {
     public void shouldGenerateUrlWithParameters() throws Exception {
         Request p = new Request().with("foo", 100, "baz", 22.3f);
         assertThat(p.toUrl("http://foo.com"), equalTo("http://foo.com?foo=100&baz=22.3"));
+    }
+
+
+    @Test @Ignore
+    public void shouldNotModifyOriginalRequest() throws Exception {
+        String url = "http://ec-media.soundcloud.com/SdPniMt7cZzj.128.mp3?ff61182e3c2ecefa438cd02102d0e385713f0c1f" +
+                "af3b0339595660fd0603ed1dd95c308fdf4dfe37b272d5fc302cd60875f62fda2557f961990ca6e770fdb81c291f729" +
+                "2cb&AWSAccessKeyId=AKIAJBHW5FB4ERKUQUOQ&Expires=1337966965&Signature=dFluZNnDMGZiXCACfRru9VrB%2" +
+                "Bbg%3D";
+
+        Request r = new Request(url);
+        assertThat(r.toUrl(), equalTo(url));
     }
 
     @Test
