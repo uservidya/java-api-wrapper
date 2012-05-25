@@ -138,6 +138,32 @@ public class Request implements Iterable<NameValuePair> {
         return this;
     }
 
+
+    /**
+     * Sets a new parameter, overwriting previous value.
+     * @param name the name
+     * @param value the value
+     * @return this
+     */
+    public Request set(String name, Object value) {
+        return clear(name).add(name, value);
+    }
+
+    /**
+     * Clears a parameter
+     * @param name name of the parameter
+     * @return this
+     */
+    public Request clear(String name) {
+        Iterator<NameValuePair> it = mParams.iterator();
+        while (it.hasNext()) {
+            if (it.next().getName().equals(name)) {
+                it.remove();
+            }
+        }
+        return this;
+    }
+
     /**
      * @param args a list of arguments
      * @return this

@@ -60,6 +60,21 @@ public class RequestTest {
     }
 
     @Test
+    public void shouldSupportOverwritingParameters() {
+        Request r = new Request();
+        r.add("foo", 1)
+         .add("foo", 2);
+
+        assertThat(r.queryString(), equalTo("foo=1&foo=2"));
+
+        r.set("foo", 3);
+        assertThat(r.queryString(), equalTo("foo=3"));
+
+        r.clear("foo");
+        assertThat(r.queryString(), equalTo(""));
+    }
+
+    @Test
     public void shouldCopyRequestWithNewResource() throws Exception {
         Request p = new Request().with("foo", 100, "baz", 22.3f);
         Request p2 = p.newResource("baz");
