@@ -5,6 +5,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
 import org.apache.http.auth.AUTH;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.client.AuthenticationHandler;
@@ -106,6 +107,7 @@ public class ApiWrapper implements CloudAPI, Serializable {
     /** debug request details to stderr */
     public boolean debugRequests;
 
+
     /**
      * Constructs a new ApiWrapper instance.
      *
@@ -146,7 +148,7 @@ public class ApiWrapper implements CloudAPI, Serializable {
 
     @Override public Token authorizationCode(String code, String... scopes) throws IOException {
         if (code == null) {
-            throw new IllegalArgumentException("username or password is null");
+            throw new IllegalArgumentException("code is null");
         }
         final Request request = addScope(Request.to(Endpoints.TOKEN).with(
                 "grant_type", AUTHORIZATION_CODE,
@@ -566,6 +568,14 @@ public class ApiWrapper implements CloudAPI, Serializable {
     }
 
     protected HttpResponse execute(Request req, Class<? extends HttpRequestBase> reqType) throws IOException {
+        Request defaults = ApiWrapper.defaultParams.get();
+        if (defaults != null && !defaults.getParams().isEmpty()) {
+            // copy + merge in default parameters
+            for (NameValuePair nvp : defaults) {
+                req = new Request(req);
+                req.add(nvp.getName(), nvp.getValue());
+            }
+        }
         if (debugRequests) System.err.println(reqType.getSimpleName()+" "+req);
         return execute(req.buildRequest(reqType));
     }
@@ -681,4 +691,26 @@ public class ApiWrapper implements CloudAPI, Serializable {
                 stateHandler, params);
     }
 
+    private static final ThreadLocal<Request> defaultParams = new ThreadLocal<Request>() {
+        @Override protected Request initialValue() {
+            return new Request();
+        }
+    };
+
+    /**
+     * Adds a default parameter which will get added to all requests in this thread.
+     * Use this method carefully since it might lead to unexpected side-effects.
+     * @param name the name of the parameter
+     * @param value the value of the parameter.
+     */
+    public static void setDefaultParameter(String name, String value) {
+        defaultParams.get().set(name, value);
+    }
+
+    /**
+     * Clears the default parameters.
+     */
+    public static void clearDefaultParameters() {
+        defaultParams.remove();
+    }
 }

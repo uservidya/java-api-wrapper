@@ -515,4 +515,59 @@ public class ApiWrapperTest {
             verify(client, times(2)).execute(any(HttpHost.class), any(HttpUriRequest.class));
         }
     }
+
+    @Test
+    public void testAddDefaultParameters() throws Exception {
+        layer.addHttpResponseRule("/foo", "Hi");
+        layer.addHttpResponseRule("/foo?t=1", "Hi t1");
+        layer.addHttpResponseRule("/foo?t=2", "Hi t2");
+
+        final Request foo = Request.to("/foo");
+        for (int i = 0; i < 1000; i++) {
+            final Exception throwable[] = new Exception[2];
+            Thread t1 = new Thread("t1") {
+                @Override
+                public void run() {
+                    ApiWrapper.setDefaultParameter("t", "1");
+                    try {
+                        assertEquals("Hi t1", Http.getString(api.get(foo)));
+                    } catch (Exception e) {
+                        throwable[0] = e;
+                    }
+                    ApiWrapper.clearDefaultParameters();
+                    try {
+                        assertEquals("Hi", Http.getString(api.get(foo)));
+                    } catch (Exception e) {
+                        throwable[0] = e;
+                    }
+                }
+            };
+
+            Thread t2 = new Thread("t2") {
+                @Override
+                public void run() {
+                    ApiWrapper.setDefaultParameter("t", "2");
+                    try {
+                        assertEquals("Hi t2", Http.getString(api.get(foo)));
+                    } catch (Exception e) {
+                        throwable[1] = e;
+                    }
+                    ApiWrapper.clearDefaultParameters();
+                    try {
+                        assertEquals("Hi", Http.getString(api.get(foo)));
+                    } catch (Exception e) {
+                        throwable[1] = e;
+                    }
+                }
+            };
+            t1.start();
+            t2.start();
+            t1.join();
+            t2.join();
+            if (throwable[0] != null) throw throwable[0];
+            if (throwable[1] != null) throw throwable[1];
+
+            assertEquals("Hi", Http.getString(api.get(foo)));
+        }
+    }
 }
