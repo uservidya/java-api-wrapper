@@ -576,10 +576,14 @@ public class ApiWrapper implements CloudAPI, Serializable {
                 req.add(nvp.getName(), nvp.getValue());
             }
         }
-        if (debugRequests) System.err.println(reqType.getSimpleName()+" "+req);
+        logRequest(reqType, req);
         return execute(req.buildRequest(reqType));
     }
 
+
+    protected void logRequest( Class<? extends HttpRequestBase> reqType, Request request) {
+        if (debugRequests) System.err.println(reqType.getSimpleName()+" "+request);
+    }
 
     protected HttpHost determineTarget(HttpUriRequest request) {
         // A null target may be acceptable if there is a default target.
