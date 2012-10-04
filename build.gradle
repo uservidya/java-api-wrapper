@@ -27,7 +27,8 @@ dependencies {
 }
 
 uploadArchives {
-  repositories.mavenDeployer {
+  repositories {
+    mavenDeployer {
      snapshotRepository(url: 'https://oss.sonatype.org/content/repositories/snapshots',
                         id:  'sonatype-nexus-snapshots') {
         authentication(getAuth('sonatype-nexus-snapshots'))
@@ -53,6 +54,7 @@ uploadArchives {
        withXml { xml ->
           new XmlParser().parse(new File("pom-include.xml")).children().each { kid -> xml.asNode().append(kid) }
         }
+      }
     }
   }
 }
@@ -83,7 +85,7 @@ example('uploadFile',    'UploadFile',    { file })
 example('dumpToken',     'DumpToken',     { [] })
 
 task writePom << {
-  repositories.mavenDeployer().getPom().writeTo("pom.xml")
+  uploadArchives.repositories.mavenDeployer().getPom().writeTo("pom.xml")
 }
 
 task doc(type: Javadoc) {
