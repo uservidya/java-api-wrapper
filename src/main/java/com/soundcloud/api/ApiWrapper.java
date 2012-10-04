@@ -242,8 +242,8 @@ public class ApiWrapper implements CloudAPI, Serializable {
      * @return a valid URI
      */
     public URI getURI(Request request, boolean api, boolean secure) {
-        return URI.create((api ? env.getResourceHost(secure) : env.getAuthResourceHost(secure)).toURI())
-                  .resolve(request.toUrl());
+        final URI uri = api ? env.getResourceURI(secure) : env.getAuthResourceURI(secure);
+        return uri.resolve(request.toUrl());
     }
 
     /**

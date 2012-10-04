@@ -1,3 +1,8 @@
+## 1.1.2 2012-10-04
+
+  * Compatibility fixes with broken httpclient versions used in Android pre-gingerbread
+  * Add support for default parameters
+
 ## 1.1.1 2012-04-30
 
   * Respect system proxy settings

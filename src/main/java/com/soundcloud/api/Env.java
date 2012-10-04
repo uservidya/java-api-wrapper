@@ -2,6 +2,9 @@ package com.soundcloud.api;
 
 import org.apache.http.HttpHost;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
 /**
  * The environment to operate against.
  * Use SANDBOX for testing your app, and LIVE for production applications.
@@ -34,9 +37,25 @@ public enum Env {
         return secure ? sslAuthResourceHost : authResourceHost;
     }
 
+    public URI getResourceURI(boolean secure) {
+        return hostToUri(getResourceHost(secure));
+    }
+
+    public URI getAuthResourceURI(boolean secure) {
+        return hostToUri(getAuthResourceHost(secure));
+    }
+
     public boolean isApiHost(HttpHost host) {
         return ("http".equals(host.getSchemeName()) ||
                "https".equals(host.getSchemeName())) &&
                 resourceHost.getHostName().equals(host.getHostName());
+    }
+
+    private static URI hostToUri(HttpHost host) {
+        try {
+            return new URI(host.getSchemeName(), host.getHostName(), null, null);
+        } catch (URISyntaxException ignored) {
+            throw new RuntimeException();
+        }
     }
 }
