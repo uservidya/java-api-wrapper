@@ -19,11 +19,11 @@ public enum Env {
      * @param authResourceHost      the authentication resource host
      */
     Env(String resourceHost, String authResourceHost) {
-        this.resourceHost = new HttpHost(resourceHost, -1, "http");
-        sslResourceHost = new HttpHost(resourceHost, -1, "https");
+        this.resourceHost = new HttpHost(resourceHost, 80, "http");
+        sslResourceHost = new HttpHost(resourceHost, 443, "https");
 
-        this.authResourceHost = new HttpHost(authResourceHost, -1, "http");
-        sslAuthResourceHost = new HttpHost(authResourceHost, -1, "https");
+        this.authResourceHost = new HttpHost(authResourceHost, 80, "http");
+        sslAuthResourceHost = new HttpHost(authResourceHost, 443, "https");
     }
 
     public HttpHost getResourceHost(boolean secure) {
