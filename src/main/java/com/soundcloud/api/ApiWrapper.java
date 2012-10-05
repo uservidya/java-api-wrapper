@@ -564,6 +564,14 @@ public class ApiWrapper implements CloudAPI, Serializable {
             // cf. http://code.google.com/p/android/issues/detail?id=2690
             request.abort();
             throw new BrokenHttpClientException(e);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // Caused by: java.lang.ArrayIndexOutOfBoundsException: length=7; index=-9
+            // org.apache.harmony.security.asn1.DerInputStream.readBitString(DerInputStream.java:72))
+            // org.apache.harmony.security.asn1.ASN1BitString.decode(ASN1BitString.java:64)
+            // ...
+            // org.apache.http.conn.ssl.SSLSocketFactory.createSocket(SSLSocketFactory.java:375)
+            request.abort();
+            throw new BrokenHttpClientException(e);
         }
     }
 
