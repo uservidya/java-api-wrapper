@@ -1,3 +1,7 @@
+## 1.1.3-SNAPSHOT
+
+  * Handle more broken HTTP client behaviour
+
 ## 1.1.2 2012-10-04
 
   * Compatibility fixes with broken httpclient versions used in Android pre-gingerbread
