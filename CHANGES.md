@@ -1,6 +1,7 @@
 ## 1.1.3-SNAPSHOT
 
   * Handle more broken HTTP client behaviour
+  * Remove sandbox environment (it is no longer supported)
 
 ## 1.1.2 2012-10-04
 

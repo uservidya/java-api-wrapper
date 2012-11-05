@@ -38,8 +38,8 @@ public class FacebookConnect {
                 CLIENT_ID,
                 CLIENT_SECRET,
                 REDIRECT_URI,
-                null    /* token */,
-                Env.SANDBOX);
+                null    /* token */);
+
 
         // generate the URL the user needs to open in the browser
         URI url = wrapper.authorizationCodeUrl(Endpoints.FACEBOOK_CONNECT, Token.SCOPE_NON_EXPIRING);

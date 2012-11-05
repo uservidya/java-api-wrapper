@@ -13,6 +13,7 @@ public enum Env {
     /** The main production site, http://soundcloud.com */
     LIVE("api.soundcloud.com", "soundcloud.com"),
     /** For testing, http://sandbox-soundcloud.com */
+    @Deprecated
     SANDBOX("api.sandbox-soundcloud.com", "sandbox-soundcloud.com");
 
     public final HttpHost resourceHost, sslResourceHost, authResourceHost, sslAuthResourceHost;

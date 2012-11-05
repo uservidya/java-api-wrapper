@@ -79,14 +79,14 @@ import java.util.Arrays;
  * HttpResponse response = wrapper.get(Request.to("/tracks"));
  *      </pre>
  * </code>
- * @see CloudAPI
+ * @see <a href="http://developers.soundcloud.com/docs">Using the SoundCloud API</a>
  */
 public class ApiWrapper implements CloudAPI, Serializable {
     private static final long serialVersionUID = 3662083416905771921L;
     public static final String DEFAULT_CONTENT_TYPE = "application/json";
 
-    /** The current environment */
-    public final Env env;
+    /** The current environment, only live possible for now */
+    public final Env env = Env.LIVE;
 
     private Token mToken;
     private final String mClientId, mClientSecret;
@@ -115,19 +115,16 @@ public class ApiWrapper implements CloudAPI, Serializable {
      * @param clientSecret the application client secret
      * @param redirectUri  the registered redirect url, or null
      * @param token        an valid token, or null if not known
-     * @param env          the environment to use (LIVE/SANDBOX)
-     * @see <a href="https://github.com/soundcloud/api/wiki/02.1-OAuth-2">API documentation</a>
+     * @see <a href="http://developers.soundcloud.com/docs#authentication">API authentication documentation</a>
      */
     public ApiWrapper(String clientId,
                       String clientSecret,
                       URI redirectUri,
-                      Token token,
-                      Env env) {
+                      Token token) {
         mClientId = clientId;
         mClientSecret = clientSecret;
         mRedirectUri = redirectUri;
         mToken = token == null ? new Token(null, null) : token;
-        this.env = env;
     }
 
     @Override public Token login(String username, String password, String... scopes) throws IOException {
@@ -383,10 +380,6 @@ public class ApiWrapper implements CloudAPI, Serializable {
             final SchemeRegistry registry = new SchemeRegistry();
             registry.register(new Scheme("http", getSocketFactory(), 80));
             final SSLSocketFactory sslFactory = getSSLSocketFactory();
-            if (env == Env.SANDBOX) {
-                // disable strict checks on sandbox XXX remove when certificate is fixed
-                sslFactory.setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-            }
             registry.register(new Scheme("https", sslFactory, 443));
             httpClient = new DefaultHttpClient(
                     new ThreadSafeClientConnManager(params, registry),

@@ -46,8 +46,7 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
                 CLIENT_ID,
                 CLIENT_SECRET,
                 null,
-                null,
-                Env.SANDBOX);
+                null);
     }
 
     private Token login(String... scopes) throws IOException {

@@ -1,7 +1,6 @@
 package com.soundcloud.api.examples;
 
 import com.soundcloud.api.ApiWrapper;
-import com.soundcloud.api.Env;
 import com.soundcloud.api.Token;
 
 import java.io.File;
@@ -16,15 +15,14 @@ public final class CreateWrapper {
 
     public static void main(String[] args) throws Exception {
         if (args.length < 4) {
-            System.err.println("CreateWrapper client_id client_secret login password [live|sandbox] [scope]");
+            System.err.println("CreateWrapper client_id client_secret login password");
             System.exit(1);
         } else {
             final ApiWrapper wrapper = new ApiWrapper(
                     args[0] /* client_id */,
                     args[1] /* client_secret */,
                     null    /* redirect URI */,
-                    null    /* token */,
-                    args.length == 5 ? Env.valueOf(args[4].toUpperCase()) : Env.LIVE);
+                    null    /* token */);
 
             Token token;
             if (args.length < 6) {

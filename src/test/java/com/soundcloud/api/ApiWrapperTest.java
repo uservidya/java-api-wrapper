@@ -49,7 +49,7 @@ public class ApiWrapperTest {
     final FakeHttpLayer layer = new FakeHttpLayer();
     @Before
     public void setup() {
-        api = new ApiWrapper("invalid", "invalid", URI.create("redirect://me"), null, Env.SANDBOX) {
+        api = new ApiWrapper("invalid", "invalid", URI.create("redirect://me"), null) {
             private static final long serialVersionUID = 12345; // silence warnings
             @Override
             protected RequestDirector getRequestDirector(HttpRequestExecutor requestExec,
@@ -311,7 +311,7 @@ public class ApiWrapperTest {
     public void shouldGenerateUrlWithoutParameters() throws Exception {
         assertThat(
                 api.getURI(new Request("/my-resource"), true, true).toString(),
-                equalTo("https://api.sandbox-soundcloud.com/my-resource")
+                equalTo("https://api.soundcloud.com/my-resource")
         );
     }
 
@@ -319,7 +319,7 @@ public class ApiWrapperTest {
     public void shouldGenerateUrlWithoutSSL() throws Exception {
         assertThat(
                 api.getURI(new Request("/my-resource"), true, false).toString(),
-                equalTo("http://api.sandbox-soundcloud.com/my-resource")
+                equalTo("http://api.soundcloud.com/my-resource")
         );
     }
 
@@ -327,7 +327,7 @@ public class ApiWrapperTest {
     public void shouldGenerateUrlWithParameters() throws Exception {
         assertThat(
                 api.getURI(Request.to("/my-resource").with("foo", "bar"), true, true).toString(),
-                equalTo("https://api.sandbox-soundcloud.com/my-resource?foo=bar")
+                equalTo("https://api.soundcloud.com/my-resource?foo=bar")
         );
     }
 
@@ -335,7 +335,7 @@ public class ApiWrapperTest {
     public void shouldGenerateUrlForWebHost() throws Exception {
         assertThat(
                 api.getURI(Request.to("/my-resource"), false, true).toString(),
-                equalTo("https://sandbox-soundcloud.com/my-resource")
+                equalTo("https://soundcloud.com/my-resource")
         );
     }
 
@@ -344,7 +344,7 @@ public class ApiWrapperTest {
     public void shouldGenerateURIForLoginAuthCode() throws Exception {
         assertThat(
             api.authorizationCodeUrl().toString(),
-                equalTo("https://sandbox-soundcloud.com/connect"+
+                equalTo("https://soundcloud.com/connect"+
                         "?redirect_uri=redirect%3A%2F%2Fme&client_id=invalid&response_type=code")
             );
     }
@@ -354,7 +354,7 @@ public class ApiWrapperTest {
     public void shouldGenerateURIForLoginAuthCodeWithDifferentEndPoint() throws Exception {
         assertThat(
             api.authorizationCodeUrl(Endpoints.FACEBOOK_CONNECT).toString(),
-                equalTo("https://sandbox-soundcloud.com/connect/via/facebook"+
+                equalTo("https://soundcloud.com/connect/via/facebook"+
                         "?redirect_uri=redirect%3A%2F%2Fme&client_id=invalid&response_type=code")
         );
     }
@@ -363,7 +363,7 @@ public class ApiWrapperTest {
     public void shouldIncludeScopeInAuthorizationUrl() throws Exception {
         assertThat(
             api.authorizationCodeUrl(Endpoints.FACEBOOK_CONNECT, Token.SCOPE_NON_EXPIRING).toString(),
-                equalTo("https://sandbox-soundcloud.com/connect/via/facebook"+
+                equalTo("https://soundcloud.com/connect/via/facebook"+
                         "?redirect_uri=redirect%3A%2F%2Fme&client_id=invalid&response_type=code&scope=non-expiring")
         );
     }
@@ -410,7 +410,7 @@ public class ApiWrapperTest {
 
     @Test
     public void shouldSerializeAndDeserializeWrapper() throws Exception {
-        ApiWrapper wrapper = new ApiWrapper("client", "secret", null, new Token("1", "2"), Env.SANDBOX);
+        ApiWrapper wrapper = new ApiWrapper("client", "secret", null, new Token("1", "2"));
         File ser = File.createTempFile("serialized_wrapper", "ser");
         wrapper.toFile(ser);
         ApiWrapper other = ApiWrapper.fromFile(ser);
@@ -452,7 +452,7 @@ public class ApiWrapperTest {
     @Test @SuppressWarnings("serial")
     public void shouldHandleBrokenHttpClientNPE() throws Exception {
         final HttpClient client = mock(HttpClient.class);
-        ApiWrapper broken = new ApiWrapper("invalid", "invalid", URI.create("redirect://me"), null, Env.SANDBOX) {
+        ApiWrapper broken = new ApiWrapper("invalid", "invalid", URI.create("redirect://me"), null) {
             @Override
             public HttpClient getHttpClient() {
                 return client;
@@ -471,7 +471,7 @@ public class ApiWrapperTest {
     @Test @SuppressWarnings("serial")
     public void shouldHandleBrokenHttpClientIAE() throws Exception {
         final HttpClient client = mock(HttpClient.class);
-        ApiWrapper broken = new ApiWrapper("invalid", "invalid", URI.create("redirect://me"), null, Env.SANDBOX) {
+        ApiWrapper broken = new ApiWrapper("invalid", "invalid", URI.create("redirect://me"), null) {
             @Override
             public HttpClient getHttpClient() {
                 return client;
@@ -491,7 +491,7 @@ public class ApiWrapperTest {
     public void shouldSafeExecute() throws Exception {
 
         final HttpClient client = mock(HttpClient.class);
-        ApiWrapper broken = new ApiWrapper("invalid", "invalid", URI.create("redirect://me"), null, Env.SANDBOX) {
+        ApiWrapper broken = new ApiWrapper("invalid", "invalid", URI.create("redirect://me"), null) {
             @Override
             public HttpClient getHttpClient() {
                 return client;
