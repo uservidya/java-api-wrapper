@@ -83,6 +83,21 @@ public class TokenTest {
     }
 
     @Test
+    public void shouldParseJsonResponseDifferentKeyOrder() throws Exception {
+        Token t = new Token(new JSONObject("{\n" +
+                "    \"expires_in\":   3600,\n" +
+                "    \"access_token\": \"1234\",\n" +
+                "    \"scope\":    \"*\",\n" +
+                "    \"refresh_token\": \"5678\"\n" +
+                "}"));
+
+        assertThat(t.scoped("*"), is(true));
+        assertThat(t.access, equalTo("1234"));
+        assertThat(t.refresh, equalTo("5678"));
+        assertNotNull(t.getExpiresIn());
+    }
+
+    @Test
     public void shouldParseJsonWithCustomParameters() throws Exception {
         Token t = new Token(new JSONObject("{\n" +
                 "    \"access_token\": \"1234\",\n" +

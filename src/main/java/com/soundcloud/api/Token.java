@@ -60,18 +60,19 @@ public class Token implements Serializable {
     public Token(JSONObject json) throws IOException {
         try {
             for (Iterator it = json.keys(); it.hasNext(); ) {
-                String key = it.next().toString();
+                final String key = it.next().toString();
                 if (ACCESS_TOKEN.equals(key)) {
-                    access = json.getString(ACCESS_TOKEN);
+                    access = json.getString(key);
                 } else if (REFRESH_TOKEN.equals(key)) {
                     // refresh token won't be set if we don't expire
-                    refresh = json.getString(REFRESH_TOKEN);
-                    expiresIn = System.currentTimeMillis() + json.getLong(EXPIRES_IN) * 1000;
+                    refresh = json.getString(key);
+                } else if (EXPIRES_IN.equals(key)) {
+                    expiresIn = System.currentTimeMillis() + json.getLong(key) * 1000;
                 } else if (SCOPE.equals(key)) {
-                    scope = json.getString(SCOPE);
+                    scope = json.getString(key);
                 } else {
                     // custom parameter
-                    customParameters.put(key, json.getString(key));
+                    customParameters.put(key, json.get(key).toString());
                 }
             }
         } catch (JSONException e) {
