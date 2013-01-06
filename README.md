@@ -263,7 +263,7 @@ See LICENSE for details.
 [PostResource]: https://github.com/soundcloud/java-api-wrapper/blob/master/src/examples/java/com/soundcloud/api/examples/PostResource.java
 [UploadFile]: https://github.com/soundcloud/java-api-wrapper/blob/master/src/examples/java/com/soundcloud/api/examples/UploadFile.java
 [FacebookConnect]: https://github.com/soundcloud/java-api-wrapper/blob/master/src/examples/java/com/soundcloud/api/examples/FacebookConnect.java
-[SoundCloud Android]: https://market.android.com/details?id=com.soundcloud.android
+[SoundCloud Android]: https://play.google.com/store/apps/details?id=com.soundcloud.android
 [register-app]: http://soundcloud.com/you/apps/new
 [Apache Maven]: http://maven.apache.org/
 [jar-all]: https://github.com/downloads/soundcloud/java-api-wrapper/java-api-wrapper-1.2.0-all.jar
