@@ -23,14 +23,20 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
-@Ignore // sandbox is kaputt
 public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
-    // http://sandbox-soundcloud.com/you/apps/java-api-wrapper-test-app
+    // https://soundcloud.com/you/apps/java-api-wrapper
     // user: api-testing
-    static final String CLIENT_ID     = "yH1Jv2C5fhIbZfGTpKtujQ";
-    static final String CLIENT_SECRET = "C6o8jc517b6PIw0RKtcfQsbOK3BjGpxWFLg977UiguY";
+    static final String CLIENT_ID     = "40d3111c6b4d02096c6ce35fdf90bf58";
+    static final String CLIENT_SECRET = "ff3685dbf02ce789a16631b0028e0512";
+
+    public static final String TRACK_PERMALINK = "http://soundcloud.com/jberkel/nobody-home";
+    public static final long USER_ID      = 18173653L;
+    public static final long TRACK_LENGTH = 224861L;
 
     CloudAPI api;
+
+    static final String USERNAME = "android-testing";
+    static final String PASSWORD = "android-testing";
 
     /*
     To get full HTTP logging, add the following system properties:
@@ -50,7 +56,7 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
     }
 
     private Token login(String... scopes) throws IOException {
-        return api.login("api-testing", "testing", scopes);
+        return api.login(USERNAME, PASSWORD, scopes);
     }
 
     @Test
@@ -97,7 +103,7 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
     public void shouldGetATokenUsingExtensionGrantTypes() throws Exception {
         // TODO
         String fbToken = "fbToken";
-        Token token = api.extensionGrantType(CloudAPI.FACEBOOK_GRANT_TYPE +fbToken);
+        api.extensionGrantType(CloudAPI.FACEBOOK_GRANT_TYPE +fbToken);
     }
 
     @Test
@@ -137,11 +143,11 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
     public void shouldResolveUrls() throws Exception {
         login();
 
-        long id = api.resolve("http://sandbox-soundcloud.com/api-testing");
-        assertThat(id, is(1862213L));
+        long id = api.resolve("http://soundcloud.com/" + USERNAME);
+        assertThat(id, is(USER_ID));
 
         try {
-            id = api.resolve("http://sandbox-soundcloud.com/i-do-no-exist");
+            id = api.resolve("http://soundcloud.com/i-do-no-exist-no-no-no");
             fail("expected resolver exception, got: "+id);
         } catch (CloudAPI.ResolverException e) {
             // expected
@@ -152,13 +158,15 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
     @Test
     public void shouldResolveStreamUrls() throws Exception {
         login();
-        Stream resolved = api.resolveStreamUrl("https://api.sandbox-soundcloud.com/tracks/2112881/stream", false);
 
-        assertThat(resolved.url, equalTo("https://api.sandbox-soundcloud.com/tracks/2112881/stream"));
-        assertThat(resolved.streamUrl, containsString("http://ak-media.soundcloud.com/"));
+        String streamUrl = getApiUrlFromPermalink(TRACK_PERMALINK) + "/stream";
+        Stream resolved = api.resolveStreamUrl(streamUrl, false);
+
+        assertThat(resolved.url, equalTo(streamUrl));
+        assertThat(resolved.streamUrl, containsString("http://ec-media.soundcloud.com/"));
 
         assertTrue("expire should be in the future", resolved.expires > System.currentTimeMillis());
-        assertThat(resolved.eTag, equalTo("\"a1782cf9976c2bc26988929e956def26\""));
+        assertThat(resolved.eTag, equalTo("\"980f61d6d6ee26ffe0c78aef618d786f\""));
     }
 
     @Test @Ignore /* playcounts not deployed on sandbox */
@@ -166,16 +174,18 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
         // need the playcount scope for this to work
         assertTrue(login(Token.SCOPE_PLAYCOUNT).scoped(Token.SCOPE_PLAYCOUNT));
 
-        int count = Http.getJSON(api.get(Request.to("/tracks/2100832"))).getInt("playback_count");
-        api.resolveStreamUrl("https://api.sandbox-soundcloud.com/tracks/2100832/stream", false);
-        int count2 = Http.getJSON(api.get(Request.to("/tracks/2100832"))).getInt("playback_count");
+        long trackId = api.resolve(TRACK_PERMALINK);
+
+        int count = Http.getJSON(api.get(Request.to("/tracks/"+trackId))).getInt("playback_count");
+        api.resolveStreamUrl("https://api.soundcloud.com/tracks/"+trackId+"/stream", false);
+        int count2 = Http.getJSON(api.get(Request.to("/tracks/"+trackId))).getInt("playback_count");
 
         assertTrue(String.format("%d !> %d", count2, count), count2 > count);
 
         // resolve again, this time skipping count
-        api.resolveStreamUrl("https://api.sandbox-soundcloud.com/tracks/2100832/stream", true);
+        api.resolveStreamUrl("https://api.soundcloud.com/tracks/"+trackId+"/stream", true);
 
-        int count3 = Http.getJSON(api.get(Request.to("/tracks/2100832"))).getInt("playback_count");
+        int count3 = Http.getJSON(api.get(Request.to("/tracks/"+trackId))).getInt("playback_count");
         assertTrue(String.format("%d != %d", count3, count2), count3 == count2);
     }
 
@@ -183,7 +193,7 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
     public void shouldThrowResolverExceptionWhenStreamCannotBeResolved() throws Exception {
         login();
         try {
-            Stream s = api.resolveStreamUrl("https://api.sandbox-soundcloud.com/tracks/999919191/stream", false);
+            Stream s = api.resolveStreamUrl("https://api.soundcloud.com/tracks/999919191/stream", false);
             fail("expected resolver exception, got: "+s);
         } catch (CloudAPI.ResolverException e) {
             // expected
@@ -195,8 +205,10 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
     public void shouldSupportRangeRequest() throws Exception {
         login();
 
-        Stream resolved = api.resolveStreamUrl("https://api.sandbox-soundcloud.com/tracks/2112881/stream", false);
-        assertThat(resolved.contentLength, is(19643L));
+        String streamUrl = getApiUrlFromPermalink(TRACK_PERMALINK)+"/stream";
+
+        Stream resolved = api.resolveStreamUrl(streamUrl, false);
+        assertThat(resolved.contentLength, is(TRACK_LENGTH));
 
         HttpResponse resp = api
                 .getHttpClient()
@@ -205,7 +217,7 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
         assertThat(resp.getStatusLine().toString(), resp.getStatusLine().getStatusCode(), is(206));
         Header range = resp.getFirstHeader("Content-Range");
         assertThat(range, notNullValue());
-        assertThat(range.getValue(), equalTo("bytes 50-100/19643"));
+        assertThat(range.getValue(), equalTo("bytes 50-100/"+TRACK_LENGTH));
         assertThat(resp.getEntity().getContentLength(), is(51L));
     }
 
@@ -222,7 +234,7 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
 
         JSONObject me = Http.getJSON(resp);
 
-        assertThat(me.getString("username"), equalTo("api-testing"));
+        assertThat(me.getString("username"), equalTo(USERNAME));
         // writeResponse(resp, "me.json");
     }
 
@@ -345,5 +357,10 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
         while ((n = is.read(b)) >= 0) fos.write(b, 0, n);
         is.close();
         fos.close();
+    }
+
+    private String getApiUrlFromPermalink(String permalink) throws IOException {
+        long trackId = api.resolve(permalink);
+        return  "https://api.soundcloud.com/tracks/" + trackId;
     }
 }
