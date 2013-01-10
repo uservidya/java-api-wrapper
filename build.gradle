@@ -4,7 +4,7 @@ apply plugin: 'eclipse'
 apply plugin: 'maven'
 
 sourceCompatibility = 1.6
-version = '1.2.0'
+version = '1.2.1'
 group   = 'com.soundcloud'
 
 repositories   { mavenCentral() }

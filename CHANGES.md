@@ -1,3 +1,10 @@
+## 1.2.1 2013-01-10
+
+  * Added ApiResponseException to wrap HTTP error codes when logging in
+  * Fixed: Token.java: JSONObject["expires_in"] not a string [8]
+  * Fixed: NoSuchMethodError on CharsetUtil.getCharset() [7]
+  * Fixed: impossible to access a public resource without being logged [6]
+
 ## 1.2.0 2012-11-05
 
   * Handle more broken HTTP client behaviour
@@ -42,3 +49,8 @@
 ## 1.0.0 2011-05-19
 
   * Initial release
+
+
+[6]: https://github.com/soundcloud/java-api-wrapper/issues/6
+[7]: https://github.com/soundcloud/java-api-wrapper/issues/7
+[8]: https://github.com/soundcloud/java-api-wrapper/issues/8
