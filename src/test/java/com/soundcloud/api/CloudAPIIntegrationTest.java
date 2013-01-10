@@ -1,5 +1,6 @@
 package com.soundcloud.api;
 
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.CoreMatchers.*;
@@ -57,6 +58,12 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
 
     private Token login(String... scopes) throws IOException {
         return api.login(USERNAME, PASSWORD, scopes);
+    }
+
+    @Test
+    public void shouldBeAbleToMakePublicRequests() throws Exception {
+        HttpResponse response = api.get(Request.to("/tracks").with("client_id", CLIENT_ID, "order", "hotness"));
+        assertEquals(200, response.getStatusLine().getStatusCode());
     }
 
     @Test

@@ -82,8 +82,10 @@ import java.util.Arrays;
  * @see <a href="http://developers.soundcloud.com/docs">Using the SoundCloud API</a>
  */
 public class ApiWrapper implements CloudAPI, Serializable {
-    private static final long serialVersionUID = 3662083416905771921L;
     public static final String DEFAULT_CONTENT_TYPE = "application/json";
+
+    private static final long serialVersionUID = 3662083416905771921L;
+    private static final Token EMPTY_TOKEN = new Token(null, null);
 
     /** The current environment, only live possible for now */
     public final Env env = Env.LIVE;
@@ -124,7 +126,7 @@ public class ApiWrapper implements CloudAPI, Serializable {
         mClientId = clientId;
         mClientSecret = clientSecret;
         mRedirectUri = redirectUri;
-        mToken = token == null ? new Token(null, null) : token;
+        mToken = token == null ? EMPTY_TOKEN : token;
     }
 
     @Override public Token login(String username, String password, String... scopes) throws IOException {
@@ -519,7 +521,7 @@ public class ApiWrapper implements CloudAPI, Serializable {
     }
 
     @Override public void setToken(Token newToken) {
-        mToken = newToken;
+        mToken = newToken == null ? EMPTY_TOKEN : newToken;
     }
 
     @Override
@@ -660,7 +662,9 @@ public class ApiWrapper implements CloudAPI, Serializable {
     /** Adds an OAuth2 header to a given request */
     protected HttpUriRequest addAuthHeader(HttpUriRequest request) {
         if (!request.containsHeader(AUTH.WWW_AUTH_RESP)) {
-            request.addHeader(createOAuthHeader(getToken()));
+            if (mToken != EMPTY_TOKEN) {
+                request.addHeader(createOAuthHeader(mToken));
+            }
         }
         return request;
     }
