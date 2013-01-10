@@ -263,21 +263,23 @@ public class ApiWrapper implements CloudAPI, Serializable {
         HttpResponse response = safeExecute(env.sslResourceHost, request.buildRequest(HttpPost.class));
         final int status = response.getStatusLine().getStatusCode();
 
-        if (status == HttpStatus.SC_OK) {
-            final Token token = new Token(Http.getJSON(response));
-            if (listener != null) listener.onTokenRefreshed(token);
-            return token;
-        } else {
-            String error = "";
-            try {
+        String error = null;
+        try {
+            if (status == HttpStatus.SC_OK) {
+                final Token token = new Token(Http.getJSON(response));
+                if (listener != null) listener.onTokenRefreshed(token);
+                return token;
+            } else {
                 error = Http.getJSON(response).getString("error");
-            } catch (IOException ignored) {
-            } catch (JSONException ignored) {
             }
-            throw status == HttpStatus.SC_UNAUTHORIZED ?
-                    new InvalidTokenException(status, error) :
-                    new IOException(status+" "+response.getStatusLine().getReasonPhrase()+" "+error);
+        } catch (IOException ignored) {
+            error = ignored.getMessage();
+        } catch (JSONException ignored) {
+            error = ignored.getMessage();
         }
+        throw status == HttpStatus.SC_UNAUTHORIZED ?
+                new InvalidTokenException(status, error) :
+                new ApiResponseException(response, error);
     }
 
     /**

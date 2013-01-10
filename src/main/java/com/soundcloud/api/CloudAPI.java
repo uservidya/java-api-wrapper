@@ -261,16 +261,35 @@ public interface CloudAPI {
         }
     }
 
-    class ResolverException extends IOException {
-        private static final long serialVersionUID = -2990651725862868387L;
+    /**
+     * Thrown if resolving the audio stream of a SoundCloud sound fails.
+     */
+    class ResolverException extends ApiResponseException {
 
-        public final HttpResponse response;
         public ResolverException(String s, HttpResponse resp) {
-            super(s);
-            this.response = resp;
+            super(resp, s);
         }
 
         public ResolverException(Throwable throwable, HttpResponse response) {
+            super(throwable, response);
+        }
+    }
+
+    /**
+     * Thrown if the service API responds in error. The HTTP status code can be obtained via {@link #getStatusCode()}.
+     */
+    class ApiResponseException extends IOException {
+        private static final long serialVersionUID = -2990651725862868387L;
+
+        public final HttpResponse response;
+
+        public ApiResponseException(HttpResponse resp, String error) {
+            super(resp.getStatusLine().getStatusCode() + ": [" + resp.getStatusLine().getReasonPhrase() + "] "
+                    + (error != null ? error : ""));
+            this.response = resp;
+        }
+
+        public ApiResponseException(Throwable throwable, HttpResponse response) {
             super(throwable == null ? null : throwable.toString());
             initCause(throwable);
             this.response = response;

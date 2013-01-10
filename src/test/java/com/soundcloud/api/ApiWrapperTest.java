@@ -191,8 +191,8 @@ public class ApiWrapperTest {
         assertNull(t.getExpiresIn());
     }
 
-    @Test(expected = IOException.class)
-    public void shouldThrowIOExceptionWhenLoginFailed() throws Exception {
+    @Test(expected = CloudAPI.InvalidTokenException.class)
+    public void shouldThrowInvalidTokenExceptionWhenLoginFailed() throws Exception {
         layer.addPendingHttpResponse(401, "{\n" +
                 "  \"error\":  \"Error!\"\n" +
                 "}");
@@ -200,8 +200,8 @@ public class ApiWrapperTest {
     }
 
 
-    @Test(expected = IOException.class)
-    public void shouldThrowIOExceptionWhenInvalidJSONReturned() throws Exception {
+    @Test(expected = CloudAPI.ApiResponseException.class)
+    public void shouldThrowApiResponseExceptionWhenInvalidJSONReturned() throws Exception {
         layer.addPendingHttpResponse(200, "I'm invalid JSON!");
         api.login("foo", "bar");
     }
@@ -212,7 +212,7 @@ public class ApiWrapperTest {
         try {
             api.login("foo", "bar");
             fail("expected IOException");
-        } catch (IOException e) {
+        } catch (CloudAPI.ApiResponseException e) {
             assertThat(e.getMessage(), containsString("I'm invalid JSON!"));
         }
     }
