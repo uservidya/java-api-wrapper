@@ -4,7 +4,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MIME;
@@ -14,6 +13,7 @@ import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
 import org.apache.james.mime4j.util.CharsetUtil;
 
 import java.io.File;
@@ -22,6 +22,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -77,12 +78,17 @@ public class Request implements Iterable<NameValuePair> {
                     resource.length());
             for (String s : query.split("&")) {
                 String[] kv = s.split("=", 2);
-                if (kv != null && kv.length == 2) {
+                if (kv != null) {
                     try {
-                        mParams.add(new BasicNameValuePair(
-                                URLDecoder.decode(kv[0], "UTF-8"),
-                                URLDecoder.decode(kv[1], "UTF-8")));
-                    } catch (UnsupportedEncodingException ignored) {}
+                        if (kv.length == 2) {
+                            mParams.add(new BasicNameValuePair(
+                                    URLDecoder.decode(kv[0], "UTF-8"),
+                                    URLDecoder.decode(kv[1], "UTF-8")));
+                        } else if (kv.length == 1) {
+                            mParams.add(new BasicNameValuePair(URLDecoder.decode(kv[0], "UTF-8"), null));
+                        }
+                    } catch (UnsupportedEncodingException ignored) {
+                    }
                 }
             }
             mResource = resource.substring(0, resource.indexOf("?"));
@@ -208,7 +214,7 @@ public class Request implements Iterable<NameValuePair> {
      * list of parameters in an HTTP PUT or HTTP POST.
      */
     public String queryString() {
-        return URLEncodedUtils.format(mParams, "UTF-8");
+        return format(mParams, "UTF-8");
     }
 
     /**
@@ -560,6 +566,40 @@ public class Request implements Iterable<NameValuePair> {
                 // never happens
                 throw new IllegalStateException("no upload data");
             }
+        }
+    }
+
+    /**
+     * Returns a String that is suitable for use as an <code>application/x-www-form-urlencoded</code>
+     * list of parameters in an HTTP PUT or HTTP POST.
+     *
+     * @param parameters  The parameters to include.
+     * @param encoding The encoding to use.
+     */
+    public static String format(
+            final List<? extends NameValuePair> parameters,
+            final String encoding) {
+        final StringBuilder result = new StringBuilder();
+        for (final NameValuePair parameter : parameters) {
+            final String encodedName = encode(parameter.getName(), encoding);
+            final String value = parameter.getValue();
+            final String encodedValue = value != null ? encode(value, encoding) : "";
+            if (result.length() > 0)
+                result.append("&");
+            result.append(encodedName);
+            if (value != null) {
+                result.append("=");
+                result.append(encodedValue);
+            }
+        }
+        return result.toString();
+    }
+
+    private static String encode(final String content, final String encoding) {
+        try {
+            return URLEncoder.encode(content, encoding != null ? encoding : HTTP.DEFAULT_CONTENT_CHARSET);
+        } catch (UnsupportedEncodingException problem) {
+            throw new IllegalArgumentException(problem);
         }
     }
 }

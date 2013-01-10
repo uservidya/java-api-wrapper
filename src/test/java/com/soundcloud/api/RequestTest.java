@@ -47,7 +47,7 @@ public class RequestTest {
     }
 
 
-    @Test @Ignore
+    @Test
     public void shouldNotModifyOriginalRequest() throws Exception {
         String url = "http://ec-media.soundcloud.com/SdPniMt7cZzj.128.mp3?ff61182e3c2ecefa438cd02102d0e385713f0c1f" +
                 "af3b0339595660fd0603ed1dd95c308fdf4dfe37b272d5fc302cd60875f62fda2557f961990ca6e770fdb81c291f729" +
