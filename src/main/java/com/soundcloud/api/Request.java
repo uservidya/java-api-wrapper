@@ -14,7 +14,6 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
-import org.apache.james.mime4j.util.CharsetUtil;
 
 import java.io.File;
 import java.io.IOException;
@@ -376,7 +375,7 @@ public class Request implements Iterable<NameValuePair> {
                 HttpEntityEnclosingRequestBase enclosingRequest =
                         (HttpEntityEnclosingRequestBase) request;
 
-                final Charset charSet =  CharsetUtil.getCharset("UTF-8");
+                final Charset charSet = java.nio.charset.Charset.forName("UTF-8");
                 if (isMultipart()) {
                     MultipartEntity multiPart = new MultipartEntity(
                             HttpMultipartMode.BROWSER_COMPATIBLE,  // XXX change this to STRICT once rack on server is upgraded
