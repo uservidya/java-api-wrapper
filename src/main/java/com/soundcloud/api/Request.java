@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -127,7 +128,7 @@ public class Request implements Iterable<NameValuePair> {
     public static Request to(String resource, Object... args) {
         if (args != null &&
             args.length > 0) {
-            resource = String.format(resource, args);
+            resource = String.format(Locale.ENGLISH, resource, args);
         }
         return new Request(resource);
     }
