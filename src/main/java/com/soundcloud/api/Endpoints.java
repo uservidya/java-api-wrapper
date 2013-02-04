@@ -16,6 +16,10 @@ public interface Endpoints {
     String TRACK_PLAYS         = "/tracks/%d/plays";
     String TRACK_PERMISSIONS   = "/tracks/%d/permissions";
 
+    String PLAYLISTS            = "/playlists";
+    String PLAYLIST_DETAILS     = "/playlists/%d";
+    String PLAYLIST_TRACKS      = "/playlists/%d/tracks";
+
     String USERS               = "/users";
     String USER_DETAILS        = "/users/%d";
     String USER_FOLLOWINGS     = "/users/%d/followings";
