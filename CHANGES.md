@@ -1,3 +1,8 @@
+## 1.2.2 TBD
+
+  * Support gzip encoding
+  * Fixed non-english request formatting issue
+
 ## 1.2.1 2013-01-10
 
   * Added ApiResponseException to wrap HTTP error codes when logging in
