@@ -227,6 +227,7 @@ public interface CloudAPI {
      * @param contentType the request mime type.
      */
     void setDefaultContentType(String contentType);
+    void setDefaultAcceptEncoding(String encoding);
 
     /**
      * Interested in changes to the current token.

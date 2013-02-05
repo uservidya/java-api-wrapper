@@ -425,7 +425,6 @@ public class Request implements Iterable<NameValuePair> {
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (UnsupportedEncodingException e) {
-            // XXX really rethrow?
             throw new RuntimeException(e);
         }
     }

@@ -2,8 +2,12 @@ package com.soundcloud.api;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
+import org.apache.http.HeaderElement;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpException;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpResponseInterceptor;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.auth.AUTH;
@@ -97,6 +101,7 @@ public class ApiWrapper implements CloudAPI, Serializable {
     transient private TokenListener listener;
 
     private String mDefaultContentType;
+    private String mDefaultAcceptEncoding;
 
     public static final int BUFFER_SIZE = 8192;
     /** Connection timeout */
@@ -266,7 +271,7 @@ public class ApiWrapper implements CloudAPI, Serializable {
         HttpResponse response = safeExecute(env.sslResourceHost, request.buildRequest(HttpPost.class));
         final int status = response.getStatusLine().getStatusCode();
 
-        String error = null;
+        String error;
         try {
             if (status == HttpStatus.SC_OK) {
                 final Token token = new Token(Http.getJSON(response));
@@ -402,6 +407,25 @@ public class ApiWrapper implements CloudAPI, Serializable {
                         OAuth2Scheme.EmptyCredentials.INSTANCE);
 
                     getAuthSchemes().register(CloudAPI.OAUTH_SCHEME, new OAuth2Scheme.Factory(ApiWrapper.this));
+
+                    addResponseInterceptor(new HttpResponseInterceptor() {
+                        @Override
+                        public void process(HttpResponse response, HttpContext context)
+                                throws HttpException, IOException {
+                            if (response == null || response.getEntity() == null) return;
+
+                            HttpEntity entity = response.getEntity();
+                            Header header = entity.getContentEncoding();
+                            if (header != null) {
+                                for (HeaderElement codec : header.getElements()) {
+                                    if (codec.getName().equalsIgnoreCase("gzip")) {
+                                        response.setEntity(new GzipDecompressingEntity(entity));
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    });
                 }
 
                 @Override protected HttpContext createHttpContext() {
@@ -625,6 +649,15 @@ public class ApiWrapper implements CloudAPI, Serializable {
         mDefaultContentType = contentType;
     }
 
+    public String getDefaultAcceptEncoding() {
+        return mDefaultAcceptEncoding;
+    }
+
+    public void setDefaultAcceptEncoding(String encoding) {
+        mDefaultAcceptEncoding = encoding;
+    }
+
+
     /* package */ static Request addScope(Request request, String[] scopes) {
         if (scopes != null && scopes.length > 0) {
             StringBuilder scope = new StringBuilder();
@@ -679,10 +712,15 @@ public class ApiWrapper implements CloudAPI, Serializable {
 
     /** Adds all required headers to the request */
     protected HttpUriRequest addHeaders(HttpUriRequest req) {
-        return addAcceptHeader(
-                addAuthHeader(req));
+        return addAcceptHeader(addAuthHeader(addEncodingHeader(req)));
     }
 
+    protected HttpUriRequest addEncodingHeader(HttpUriRequest req) {
+        if (getDefaultAcceptEncoding() != null) {
+            req.addHeader("Accept-Encoding", getDefaultAcceptEncoding());
+        }
+        return req;
+    }
 
     /** This method mainly exists to make the wrapper more testable. oh, apache's insanity. */
     protected RequestDirector getRequestDirector(HttpRequestExecutor requestExec,

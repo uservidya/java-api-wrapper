@@ -9,7 +9,9 @@ import static org.junit.Assert.*;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -19,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.BrokenBarrierException;
@@ -54,6 +57,7 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
                 CLIENT_SECRET,
                 null,
                 null);
+
     }
 
     private Token login(String... scopes) throws IOException {
@@ -243,6 +247,28 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
 
         assertThat(me.getString("username"), equalTo(USERNAME));
         // writeResponse(resp, "me.json");
+    }
+
+    @Test
+    public void readGzipCompressedData() throws Exception {
+        api.setDefaultAcceptEncoding("gzip");
+
+        login();
+
+        HttpResponse resp = api.get(Request.to(Endpoints.TRACKS));
+        assertThat(resp.getStatusLine().getStatusCode(), is(200));
+
+        assertThat(
+                resp.getFirstHeader("Content-Type").getValue(),
+                containsString("application/json"));
+
+        assertThat(
+                resp.getFirstHeader("Content-Encoding").getValue(),
+                equalTo("gzip"));
+
+        JSONArray array = new JSONArray(new JSONTokener(new InputStreamReader(resp.getEntity().getContent())));
+
+        assertTrue("array is empty", array.length() > 0);
     }
 
     @Test
