@@ -15,6 +15,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.util.EntityUtils;
 import org.hamcrest.CoreMatchers;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -257,6 +258,20 @@ public class RequestTest {
 
         assertThat(request.getFirstHeader("Content-Type").getValue(), equalTo("application/xml"));
         assertThat("<foo><baz>content</baz></foo>", equalTo(body));
+    }
+
+    @Test
+    public void shouldBuildARequestWithContentAndPreserveQueryParameters() throws Exception {
+        HttpPost post = Request
+                .to("/foo")
+                .withContent("{}", "application/json")
+                .with("1", "2").buildRequest(HttpPost.class);
+
+        assertThat(post.getURI().toString(), equalTo("/foo?1=2"));
+        assertTrue(post.getEntity() instanceof StringEntity);
+        assertThat(post.getEntity().getContentLength(), equalTo(2l));
+        assertThat(EntityUtils.toString(post.getEntity()), equalTo("{}"));
+        assertThat(post.getFirstHeader("Content-Type").getValue(), equalTo("application/json"));
     }
 
     @Test

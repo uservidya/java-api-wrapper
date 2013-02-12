@@ -2,6 +2,7 @@
 
   * Support gzip encoding
   * Fixed non-english request formatting issue
+  * Preserve query parameters for 'withContent`
 
 ## 1.2.1 2013-01-10
 

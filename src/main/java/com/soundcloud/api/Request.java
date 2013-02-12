@@ -115,6 +115,7 @@ public class Request implements Iterable<NameValuePair> {
         listener = request.listener;
         mParams = new ArrayList<NameValuePair>(request.mParams);
         mIfNoneMatch = request.mIfNoneMatch;
+        mEntity = request.mEntity;
         if (request.mFiles != null) mFiles = new HashMap<String, Attachment>(request.mFiles);
     }
 
@@ -395,16 +396,22 @@ public class Request implements Iterable<NameValuePair> {
 
                     enclosingRequest.setEntity(listener == null ? multiPart :
                         new CountingMultipartEntity(multiPart, listener));
+
+                    request.setURI(URI.create(mResource));
+
                 // form-urlencoded?
-                } else if (!mParams.isEmpty()) {
-                    request.setHeader("Content-Type", "application/x-www-form-urlencoded");
-                    enclosingRequest.setEntity(new StringEntity(queryString()));
                 } else if (mEntity != null) {
                     request.setHeader(mEntity.getContentType());
                     enclosingRequest.setEntity(mEntity);
+                    request.setURI(URI.create(toUrl())); // include the params
+
+                } else if (!mParams.isEmpty()) {
+                    request.setHeader("Content-Type", "application/x-www-form-urlencoded");
+                    enclosingRequest.setEntity(new StringEntity(queryString()));
+                    request.setURI(URI.create(mResource));
                 }
 
-                request.setURI(URI.create(mResource));
+
             } else { // just plain GET/HEAD/DELETE/...
                 if (mRange != null) {
                     request.addHeader("Range", formatRange(mRange));
