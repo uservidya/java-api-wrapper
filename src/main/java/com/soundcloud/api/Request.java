@@ -405,12 +405,13 @@ public class Request implements Iterable<NameValuePair> {
                     enclosingRequest.setEntity(mEntity);
                     request.setURI(URI.create(toUrl())); // include the params
 
-                } else if (!mParams.isEmpty()) {
-                    request.setHeader("Content-Type", "application/x-www-form-urlencoded");
-                    enclosingRequest.setEntity(new StringEntity(queryString()));
+                } else {
+                    if (!mParams.isEmpty()) {
+                        request.setHeader("Content-Type", "application/x-www-form-urlencoded");
+                        enclosingRequest.setEntity(new StringEntity(queryString()));
+                    }
                     request.setURI(URI.create(mResource));
                 }
-
 
             } else { // just plain GET/HEAD/DELETE/...
                 if (mRange != null) {
