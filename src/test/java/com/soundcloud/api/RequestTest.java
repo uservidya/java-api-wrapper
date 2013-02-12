@@ -3,6 +3,7 @@ package com.soundcloud.api;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.notNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -216,6 +217,15 @@ public class RequestTest {
     }
 
     @Test
+    public void shouldPreservePostUri() throws Exception {
+        HttpPost request = Request.to("/foo")
+                .buildRequest(HttpPost.class);
+
+        assertThat(request.getURI(), notNullValue());
+        assertThat(request.getURI().toString(), equalTo("/foo"));
+    }
+
+    @Test
     public void shouldCreateMultipartRequestWhenFilesAreAddedWithByteArray() throws Exception {
         HttpPost request = Request.to("/foo")
                 .with("key", "value")
@@ -273,6 +283,8 @@ public class RequestTest {
         assertThat(EntityUtils.toString(post.getEntity()), equalTo("{}"));
         assertThat(post.getFirstHeader("Content-Type").getValue(), equalTo("application/json"));
     }
+
+
 
     @Test
     public void whenAProgressListenerIsSpecifiedShouldHaveCountingMultipart() throws Exception {
