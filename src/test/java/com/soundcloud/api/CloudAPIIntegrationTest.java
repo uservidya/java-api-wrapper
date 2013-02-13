@@ -9,7 +9,9 @@ import static org.junit.Assert.*;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.junit.Before;
@@ -35,6 +37,8 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
 
     public static final String TRACK_PERMALINK = "http://soundcloud.com/jberkel/nobody-home";
     public static final long USER_ID      = 18173653L;
+    public static final long CHE_FLUTE_TRACK_ID = 274334;
+    public static final long FLICKERMOOD_TRACK_ID = 293;
     public static final long TRACK_LENGTH = 224861L;
 
     CloudAPI api;
@@ -83,6 +87,68 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
 
         Header location = resp.getFirstHeader("Location");
         assertNotNull(location);
+    }
+
+    @Test
+    public void shouldCreateAPlaylistAndAddTracksToIt() throws Exception {
+        login();
+
+        HttpResponse resp = api.post(Request.to(PLAYLISTS)
+                .with("playlist[title]", "test playlist"));
+
+        int status = resp.getStatusLine().getStatusCode();
+        assertThat(status, is(201));
+
+        Header location = resp.getFirstHeader("Location");
+        assertNotNull(location);
+
+        String playlistUrl = location.getValue();
+        assertNotNull(playlistUrl);
+
+        String title = "a new title:" + System.currentTimeMillis();
+        resp = api.put(Request.to(playlistUrl)
+                .with("playlist[title]", title)
+                .with("playlist[tracks][][id]", CHE_FLUTE_TRACK_ID)
+                .with("playlist[tracks][][id]", FLICKERMOOD_TRACK_ID));
+
+        status = resp.getStatusLine().getStatusCode();
+        assertThat(status, is(200));
+
+        JSONObject obj = new JSONObject(EntityUtils.toString(resp.getEntity()));
+        assertThat(obj.getString("kind"), equalTo("playlist"));
+        assertThat(obj.getString("title"), equalTo(title));
+        assertThat(obj.getInt("track_count"), equalTo(2));
+    }
+
+    @Test
+    public void shouldCreateAPlaylistAndAddTracksToItWithJSON() throws Exception {
+        login();
+
+        HttpResponse resp = api.post(Request.to(PLAYLISTS)
+                .with("playlist[title]", "test playlist"));
+
+        int status = resp.getStatusLine().getStatusCode();
+        assertThat(status, is(201));
+
+        Header location = resp.getFirstHeader("Location");
+        assertNotNull(location);
+
+        String playlistUrl = location.getValue();
+        assertNotNull(playlistUrl);
+
+        String title = "a new title:" + System.currentTimeMillis();
+        JSONObject json = createJSONPlaylist(title, CHE_FLUTE_TRACK_ID, FLICKERMOOD_TRACK_ID);
+
+        resp = api.put(Request.to(playlistUrl)
+                .withContent(json.toString(), "application/json"));
+
+        status = resp.getStatusLine().getStatusCode();
+        assertThat(status, is(200));
+
+        JSONObject obj = new JSONObject(EntityUtils.toString(resp.getEntity()));
+        assertThat(obj.getString("kind"), equalTo("playlist"));
+        assertThat(obj.getString("title"), equalTo(title));
+        assertThat(obj.getInt("track_count"), equalTo(2));
     }
 
     @Test
@@ -395,5 +461,24 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
     private String getApiUrlFromPermalink(String permalink) throws IOException {
         long trackId = api.resolve(permalink);
         return  "https://api.soundcloud.com/tracks/" + trackId;
+    }
+
+
+    private JSONObject createJSONPlaylist(String title, long... trackIds) throws JSONException {
+        JSONObject playlist = new JSONObject();
+        playlist.put("title", title);
+
+        JSONObject json = new JSONObject();
+        json.put("playlist", playlist);
+
+        JSONArray tracks = new JSONArray();
+        playlist.put("tracks", tracks);
+
+        for (long id : trackIds) {
+            JSONObject track = new JSONObject();
+            track.put("id", id);
+            tracks.put(track);
+        }
+        return json;
     }
 }
