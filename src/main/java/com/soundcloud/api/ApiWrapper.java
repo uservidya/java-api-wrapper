@@ -607,7 +607,12 @@ public class ApiWrapper implements CloudAPI, Serializable {
             }
         }
         logRequest(reqType, req);
-        return execute(req.buildRequest(reqType));
+        if (mToken == EMPTY_TOKEN){
+            return execute(new Request(req).add("consumer_key", mClientId).buildRequest(reqType));
+        } else {
+            return execute(req.buildRequest(reqType));
+        }
+
     }
 
 

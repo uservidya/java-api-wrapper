@@ -265,7 +265,7 @@ public class ApiWrapperTest {
 
     @Test
     public void shouldGetContent() throws Exception {
-        layer.addHttpResponseRule("/some/resource?a=1", "response");
+        layer.addHttpResponseRule("/some/resource?a=1&consumer_key=invalid", "response");
         assertThat(Http.getString(api.get(Request.to("/some/resource").with("a", "1"))),
                 equalTo("response"));
     }
@@ -289,7 +289,7 @@ public class ApiWrapperTest {
     @Test
     public void shouldDeleteContent() throws Exception {
         HttpResponse resp = mock(HttpResponse.class);
-        layer.addHttpResponseRule("DELETE", "/foo/something", resp);
+        layer.addHttpResponseRule("DELETE", "/foo/something?consumer_key=invalid", resp);
         assertThat(api.delete(new Request("/foo/something")), equalTo(resp));
     }
 
@@ -518,9 +518,9 @@ public class ApiWrapperTest {
 
     @Test
     public void testAddDefaultParameters() throws Exception {
-        layer.addHttpResponseRule("/foo", "Hi");
-        layer.addHttpResponseRule("/foo?t=1", "Hi t1");
-        layer.addHttpResponseRule("/foo?t=2", "Hi t2");
+        layer.addHttpResponseRule("/foo?consumer_key=invalid", "Hi");
+        layer.addHttpResponseRule("/foo?t=1&consumer_key=invalid", "Hi t1");
+        layer.addHttpResponseRule("/foo?t=2&consumer_key=invalid", "Hi t2");
 
         final Request foo = Request.to("/foo");
         for (int i = 0; i < 1000; i++) {
