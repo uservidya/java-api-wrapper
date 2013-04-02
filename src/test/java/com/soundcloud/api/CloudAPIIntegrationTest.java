@@ -240,7 +240,7 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
         Stream resolved = api.resolveStreamUrl(streamUrl, false);
 
         assertThat(resolved.url, equalTo(streamUrl));
-        assertThat(resolved.streamUrl, containsString("http://ec-media.soundcloud.com/"));
+        assertThat(resolved.streamUrl, containsString("https://ec-media.soundcloud.com/"));
 
         assertTrue("expire should be in the future", resolved.expires > System.currentTimeMillis());
         assertThat(resolved.eTag, equalTo("\"980f61d6d6ee26ffe0c78aef618d786f\""));
