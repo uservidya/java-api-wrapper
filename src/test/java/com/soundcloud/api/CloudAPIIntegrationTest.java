@@ -178,9 +178,9 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
 
     @Test(expected = CloudAPI.InvalidTokenException.class)
     public void shouldGetATokenUsingExtensionGrantTypes() throws Exception {
-        // TODO
-        String fbToken = "fbToken";
-        api.extensionGrantType(CloudAPI.FACEBOOK_GRANT_TYPE +fbToken);
+        // TODO ?
+        api.extensionGrantType(CloudAPI.FACEBOOK_GRANT_TYPE + "fbToken");
+        api.extensionGrantType(CloudAPI.GOOGLE_GRANT_TYPE + "googleToken");
     }
 
     @Test
