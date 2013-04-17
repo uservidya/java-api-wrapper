@@ -607,12 +607,12 @@ public class ApiWrapper implements CloudAPI, Serializable {
             }
         }
         logRequest(reqType, req);
-        if (mToken == EMPTY_TOKEN) {
-            req = new Request(req).add("client_id", mClientId);
-        }
-        return  execute(req.buildRequest(reqType));
+        return  execute(addClientIdIfNecessary(req).buildRequest(reqType));
     }
 
+    protected Request addClientIdIfNecessary(Request req) {
+        return (mToken != EMPTY_TOKEN) ? req : new Request(req).add("client_id", mClientId);
+    }
 
     protected void logRequest( Class<? extends HttpRequestBase> reqType, Request request) {
         if (debugRequests) System.err.println(reqType.getSimpleName()+" "+request);

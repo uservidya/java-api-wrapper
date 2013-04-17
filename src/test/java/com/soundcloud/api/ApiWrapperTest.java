@@ -519,6 +519,13 @@ public class ApiWrapperTest {
     }
 
     @Test
+    public void testOnlyAddClientIdWithoutToken() throws Exception {
+        assertThat(api.addClientIdIfNecessary(Request.to("/foo")).toUrl(), equalTo("/foo?client_id=" + TEST_CLIENT_ID));
+        api.setToken(new Token("access", "refresh"));
+        assertThat(api.addClientIdIfNecessary(Request.to("/foo")).toUrl(), equalTo("/foo"));
+    }
+
+    @Test
     public void testAddDefaultParameters() throws Exception {
         layer.addHttpResponseRule("/foo?client_id=" + TEST_CLIENT_ID, "Hi");
         layer.addHttpResponseRule("/foo?t=1&client_id=" + TEST_CLIENT_ID, "Hi t1");
