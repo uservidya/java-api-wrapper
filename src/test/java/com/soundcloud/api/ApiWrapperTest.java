@@ -46,10 +46,12 @@ import java.net.URI;
 
 public class ApiWrapperTest {
     private ApiWrapper api;
+    private static String TEST_CLIENT_ID        = "testClientId";
+    private static String TEST_CLIENT_SECRET    = "testClientSecret";
     final FakeHttpLayer layer = new FakeHttpLayer();
     @Before
     public void setup() {
-        api = new ApiWrapper("invalid", "invalid", URI.create("redirect://me"), null) {
+        api = new ApiWrapper(TEST_CLIENT_ID, TEST_CLIENT_SECRET, URI.create("redirect://me"), null) {
             private static final long serialVersionUID = 12345; // silence warnings
             @Override
             protected RequestDirector getRequestDirector(HttpRequestExecutor requestExec,
@@ -265,7 +267,7 @@ public class ApiWrapperTest {
 
     @Test
     public void shouldGetContent() throws Exception {
-        layer.addHttpResponseRule("/some/resource?a=1&consumer_key=invalid", "response");
+        layer.addHttpResponseRule("/some/resource?a=1&client_id=" + TEST_CLIENT_ID, "response");
         assertThat(Http.getString(api.get(Request.to("/some/resource").with("a", "1"))),
                 equalTo("response"));
     }
@@ -289,7 +291,7 @@ public class ApiWrapperTest {
     @Test
     public void shouldDeleteContent() throws Exception {
         HttpResponse resp = mock(HttpResponse.class);
-        layer.addHttpResponseRule("DELETE", "/foo/something?consumer_key=invalid", resp);
+        layer.addHttpResponseRule("DELETE", "/foo/something?client_id=" + TEST_CLIENT_ID, resp);
         assertThat(api.delete(new Request("/foo/something")), equalTo(resp));
     }
 
@@ -345,7 +347,7 @@ public class ApiWrapperTest {
         assertThat(
             api.authorizationCodeUrl().toString(),
                 equalTo("https://soundcloud.com/connect"+
-                        "?redirect_uri=redirect%3A%2F%2Fme&client_id=invalid&response_type=code")
+                        "?redirect_uri=redirect%3A%2F%2Fme&client_id=" + TEST_CLIENT_ID + "&response_type=code")
             );
     }
 
@@ -355,7 +357,7 @@ public class ApiWrapperTest {
         assertThat(
             api.authorizationCodeUrl(Endpoints.FACEBOOK_CONNECT).toString(),
                 equalTo("https://soundcloud.com/connect/via/facebook"+
-                        "?redirect_uri=redirect%3A%2F%2Fme&client_id=invalid&response_type=code")
+                        "?redirect_uri=redirect%3A%2F%2Fme&client_id=" + TEST_CLIENT_ID + "&response_type=code")
         );
     }
 
@@ -364,7 +366,7 @@ public class ApiWrapperTest {
         assertThat(
             api.authorizationCodeUrl(Endpoints.FACEBOOK_CONNECT, Token.SCOPE_NON_EXPIRING).toString(),
                 equalTo("https://soundcloud.com/connect/via/facebook"+
-                        "?redirect_uri=redirect%3A%2F%2Fme&client_id=invalid&response_type=code&scope=non-expiring")
+                        "?redirect_uri=redirect%3A%2F%2Fme&client_id=" + TEST_CLIENT_ID + "&response_type=code&scope=non-expiring")
         );
     }
 
@@ -518,9 +520,9 @@ public class ApiWrapperTest {
 
     @Test
     public void testAddDefaultParameters() throws Exception {
-        layer.addHttpResponseRule("/foo?consumer_key=invalid", "Hi");
-        layer.addHttpResponseRule("/foo?t=1&consumer_key=invalid", "Hi t1");
-        layer.addHttpResponseRule("/foo?t=2&consumer_key=invalid", "Hi t2");
+        layer.addHttpResponseRule("/foo?client_id=" + TEST_CLIENT_ID, "Hi");
+        layer.addHttpResponseRule("/foo?t=1&client_id=" + TEST_CLIENT_ID, "Hi t1");
+        layer.addHttpResponseRule("/foo?t=2&client_id=" + TEST_CLIENT_ID, "Hi t2");
 
         final Request foo = Request.to("/foo");
         for (int i = 0; i < 1000; i++) {
