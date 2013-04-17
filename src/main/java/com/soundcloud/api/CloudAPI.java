@@ -25,8 +25,8 @@ public interface CloudAPI {
     String OAUTH1_TOKEN       = "oauth1_token";
 
     // oauth2 extension grant types
-    String FACEBOOK_GRANT_TYPE  = "urn:soundcloud:oauth2:grant-type:facebook&access_token=";
-    String GOOGLE_GRANT_TYPE    = "urn:soundcloud:oauth2:grant-type:google_plus&access_token=";
+    String FACEBOOK_GRANT_TYPE      = "urn:soundcloud:oauth2:grant-type:facebook&access_token=";
+    String GOOGLE_PLUS_GRANT_TYPE   = "urn:soundcloud:oauth2:grant-type:google_plus&access_token=";
 
     // other constants
     String REALM              = "SoundCloud";

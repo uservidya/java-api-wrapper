@@ -180,7 +180,6 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
     public void shouldGetATokenUsingExtensionGrantTypes() throws Exception {
         // TODO ?
         api.extensionGrantType(CloudAPI.FACEBOOK_GRANT_TYPE + "fbToken");
-        api.extensionGrantType(CloudAPI.GOOGLE_GRANT_TYPE + "googleToken");
     }
 
     @Test
