@@ -607,7 +607,7 @@ public class ApiWrapper implements CloudAPI, Serializable {
             }
         }
         logRequest(reqType, req);
-        return  execute(addClientIdIfNecessary(req).buildRequest(reqType));
+        return execute(addClientIdIfNecessary(req).buildRequest(reqType));
     }
 
     protected Request addClientIdIfNecessary(Request req) {
