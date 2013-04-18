@@ -136,7 +136,7 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
         String playlistUrl = location.getValue();
         assertNotNull(playlistUrl);
 
-        String title = "a new title:" + System.currentTimeMillis();
+        String title = "a new tîtle:" + System.currentTimeMillis();
         JSONObject json = createJSONPlaylist(title, CHE_FLUTE_TRACK_ID, FLICKERMOOD_TRACK_ID);
 
         resp = api.put(Request.to(playlistUrl)
