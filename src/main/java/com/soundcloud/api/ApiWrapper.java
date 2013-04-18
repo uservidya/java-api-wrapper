@@ -91,6 +91,18 @@ public class ApiWrapper implements CloudAPI, Serializable {
     private static final long serialVersionUID = 3662083416905771921L;
     private static final Token EMPTY_TOKEN = new Token(null, null);
 
+    private static interface AuthParams {
+        String GRANT_TYPE       = "grant_type";
+        String CLIENT_ID        = "client_id";
+        String CLIENT_SECRET    = "client_secret";
+        String USERNAME         = "username";
+        String PASSWORD         = "password";
+        String REDIRECT_URI     = "redirect_uri";
+        String CODE             = "code";
+        String REFRESH_TOKEN    = "refresh_token";
+        String RESPONSE_TYPE    = "response_type";
+    }
+
     /** The current environment, only live possible for now */
     public final Env env = Env.LIVE;
 
@@ -139,11 +151,11 @@ public class ApiWrapper implements CloudAPI, Serializable {
             throw new IllegalArgumentException("username or password is null");
         }
         final Request request = addScope(Request.to(Endpoints.TOKEN).with(
-                "grant_type", PASSWORD,
-                "client_id", mClientId,
-                "client_secret", mClientSecret,
-                "username", username,
-                "password", password), scopes);
+                AuthParams.GRANT_TYPE, CloudAPI.PASSWORD,
+                AuthParams.CLIENT_ID, mClientId,
+                AuthParams.CLIENT_SECRET, mClientSecret,
+                AuthParams.USERNAME, username,
+                AuthParams.PASSWORD, password), scopes);
         mToken = requestToken(request);
         return mToken;
     }
@@ -155,11 +167,11 @@ public class ApiWrapper implements CloudAPI, Serializable {
             throw new IllegalArgumentException("code is null");
         }
         final Request request = addScope(Request.to(Endpoints.TOKEN).with(
-                "grant_type", AUTHORIZATION_CODE,
-                "client_id", mClientId,
-                "client_secret", mClientSecret,
-                "redirect_uri", mRedirectUri,
-                "code", code), scopes);
+                AuthParams.GRANT_TYPE, AUTHORIZATION_CODE,
+                AuthParams.CLIENT_ID, mClientId,
+                AuthParams.CLIENT_SECRET, mClientSecret,
+                AuthParams.REDIRECT_URI, mRedirectUri,
+                AuthParams.CODE, code), scopes);
         mToken = requestToken(request);
         return mToken;
     }
@@ -167,9 +179,9 @@ public class ApiWrapper implements CloudAPI, Serializable {
 
     @Override public Token clientCredentials(String... scopes) throws IOException {
         final Request req = addScope(Request.to(Endpoints.TOKEN).with(
-                "grant_type", CLIENT_CREDENTIALS,
-                "client_id",  mClientId,
-                "client_secret", mClientSecret), scopes);
+                AuthParams.GRANT_TYPE, CLIENT_CREDENTIALS,
+                AuthParams.CLIENT_ID,  mClientId,
+                AuthParams.CLIENT_SECRET, mClientSecret), scopes);
 
         final Token token = requestToken(req);
         if (scopes != null) {
@@ -186,9 +198,9 @@ public class ApiWrapper implements CloudAPI, Serializable {
     @Override
     public Token extensionGrantType(String grantType, String... scopes) throws IOException {
         final Request req = addScope(Request.to(Endpoints.TOKEN).with(
-                "grant_type", grantType,
-                "client_id",  mClientId,
-                "client_secret", mClientSecret), scopes);
+                AuthParams.GRANT_TYPE, grantType,
+                AuthParams.CLIENT_ID,  mClientId,
+                AuthParams.CLIENT_SECRET, mClientSecret), scopes);
 
         mToken = requestToken(req);
         return mToken;
@@ -197,20 +209,20 @@ public class ApiWrapper implements CloudAPI, Serializable {
     @Override public Token refreshToken() throws IOException {
         if (mToken == null || mToken.refresh == null) throw new IllegalStateException("no refresh token available");
         mToken = requestToken(Request.to(Endpoints.TOKEN).with(
-                "grant_type", REFRESH_TOKEN,
-                "client_id", mClientId,
-                "client_secret", mClientSecret,
-                "refresh_token", mToken.refresh));
+                AuthParams.GRANT_TYPE, CloudAPI.REFRESH_TOKEN,
+                AuthParams.CLIENT_ID, mClientId,
+                AuthParams.CLIENT_SECRET, mClientSecret,
+                AuthParams.REFRESH_TOKEN, mToken.refresh));
         return mToken;
     }
 
     @Override public Token exchangeOAuth1Token(String oauth1AccessToken) throws IOException {
         if (oauth1AccessToken == null) throw new IllegalArgumentException("need access token");
         mToken = requestToken(Request.to(Endpoints.TOKEN).with(
-                "grant_type", OAUTH1_TOKEN,
-                "client_id", mClientId,
-                "client_secret", mClientSecret,
-                "refresh_token", oauth1AccessToken));
+                AuthParams.GRANT_TYPE, OAUTH1_TOKEN,
+                AuthParams.CLIENT_ID, mClientId,
+                AuthParams.CLIENT_SECRET, mClientSecret,
+                AuthParams.REFRESH_TOKEN, oauth1AccessToken));
         return mToken;
     }
 
@@ -231,9 +243,9 @@ public class ApiWrapper implements CloudAPI, Serializable {
 
     @Override public URI authorizationCodeUrl(String... options) {
         final Request req = Request.to(options.length == 0 ? Endpoints.CONNECT : options[0]).with(
-                "redirect_uri", mRedirectUri,
-                "client_id", mClientId,
-                "response_type", "code");
+                AuthParams.REDIRECT_URI, mRedirectUri,
+                AuthParams.CLIENT_ID, mClientId,
+                AuthParams.RESPONSE_TYPE, "code");
         if (options.length == 2) req.add("scope", options[1]);
         return getURI(req, false, true);
     }
@@ -611,7 +623,7 @@ public class ApiWrapper implements CloudAPI, Serializable {
     }
 
     protected Request addClientIdIfNecessary(Request req) {
-        return (mToken != EMPTY_TOKEN) ? req : new Request(req).add("client_id", mClientId);
+        return (mToken != EMPTY_TOKEN) ? req : new Request(req).add(AuthParams.CLIENT_ID, mClientId);
     }
 
     protected void logRequest( Class<? extends HttpRequestBase> reqType, Request request) {
