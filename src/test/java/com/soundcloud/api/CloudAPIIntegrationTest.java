@@ -70,7 +70,7 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
 
     @Test
     public void shouldBeAbleToMakePublicRequests() throws Exception {
-        HttpResponse response = api.get(Request.to("/tracks").with("client_id", CLIENT_ID, "order", "hotness"));
+        HttpResponse response = api.get(Request.to("/tracks").with("order", "hotness"));
         assertEquals(200, response.getStatusLine().getStatusCode());
     }
 
