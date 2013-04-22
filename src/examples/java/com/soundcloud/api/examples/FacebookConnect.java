@@ -3,7 +3,6 @@ package com.soundcloud.api.examples;
 import com.soundcloud.api.ApiWrapper;
 import com.soundcloud.api.CloudAPI;
 import com.soundcloud.api.Endpoints;
-import com.soundcloud.api.Env;
 import com.soundcloud.api.Token;
 
 import java.awt.*;

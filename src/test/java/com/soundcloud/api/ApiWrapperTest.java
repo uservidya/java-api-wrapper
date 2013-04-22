@@ -3,14 +3,21 @@ package com.soundcloud.api;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.fail;
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.soundcloud.api.fakehttp.FakeHttpLayer;
 import com.soundcloud.api.fakehttp.RequestMatcher;
@@ -46,10 +53,12 @@ import java.net.URI;
 
 public class ApiWrapperTest {
     private ApiWrapper api;
+    private final static String TEST_CLIENT_ID        = "testClientId";
+    private final static String TEST_CLIENT_SECRET    = "testClientSecret";
     final FakeHttpLayer layer = new FakeHttpLayer();
     @Before
     public void setup() {
-        api = new ApiWrapper("invalid", "invalid", URI.create("redirect://me"), null) {
+        api = new ApiWrapper(TEST_CLIENT_ID, TEST_CLIENT_SECRET, URI.create("redirect://me"), null) {
             private static final long serialVersionUID = 12345; // silence warnings
             @Override
             protected RequestDirector getRequestDirector(HttpRequestExecutor requestExec,
@@ -265,7 +274,7 @@ public class ApiWrapperTest {
 
     @Test
     public void shouldGetContent() throws Exception {
-        layer.addHttpResponseRule("/some/resource?a=1", "response");
+        layer.addHttpResponseRule("/some/resource?a=1&client_id=" + TEST_CLIENT_ID, "response");
         assertThat(Http.getString(api.get(Request.to("/some/resource").with("a", "1"))),
                 equalTo("response"));
     }
@@ -289,7 +298,7 @@ public class ApiWrapperTest {
     @Test
     public void shouldDeleteContent() throws Exception {
         HttpResponse resp = mock(HttpResponse.class);
-        layer.addHttpResponseRule("DELETE", "/foo/something", resp);
+        layer.addHttpResponseRule("DELETE", "/foo/something?client_id=" + TEST_CLIENT_ID, resp);
         assertThat(api.delete(new Request("/foo/something")), equalTo(resp));
     }
 
@@ -345,7 +354,7 @@ public class ApiWrapperTest {
         assertThat(
             api.authorizationCodeUrl().toString(),
                 equalTo("https://soundcloud.com/connect"+
-                        "?redirect_uri=redirect%3A%2F%2Fme&client_id=invalid&response_type=code")
+                        "?redirect_uri=redirect%3A%2F%2Fme&client_id=" + TEST_CLIENT_ID + "&response_type=code")
             );
     }
 
@@ -355,7 +364,7 @@ public class ApiWrapperTest {
         assertThat(
             api.authorizationCodeUrl(Endpoints.FACEBOOK_CONNECT).toString(),
                 equalTo("https://soundcloud.com/connect/via/facebook"+
-                        "?redirect_uri=redirect%3A%2F%2Fme&client_id=invalid&response_type=code")
+                        "?redirect_uri=redirect%3A%2F%2Fme&client_id=" + TEST_CLIENT_ID + "&response_type=code")
         );
     }
 
@@ -364,7 +373,7 @@ public class ApiWrapperTest {
         assertThat(
             api.authorizationCodeUrl(Endpoints.FACEBOOK_CONNECT, Token.SCOPE_NON_EXPIRING).toString(),
                 equalTo("https://soundcloud.com/connect/via/facebook"+
-                        "?redirect_uri=redirect%3A%2F%2Fme&client_id=invalid&response_type=code&scope=non-expiring")
+                        "?redirect_uri=redirect%3A%2F%2Fme&client_id=" + TEST_CLIENT_ID + "&response_type=code&scope=non-expiring")
         );
     }
 
@@ -517,10 +526,27 @@ public class ApiWrapperTest {
     }
 
     @Test
+    public void testAddClientIdWithoutToken() throws Exception {
+        assertThat(api.addClientIdIfNecessary(Request.to("/foo")).toUrl(), equalTo("/foo?client_id=" + TEST_CLIENT_ID));
+    }
+
+    @Test
+    public void testDontAddClientIdWithToken() throws Exception {
+        api.setToken(new Token("access", "refresh"));
+        assertThat(api.addClientIdIfNecessary(Request.to("/foo")).toUrl(), equalTo("/foo"));
+    }
+
+    @Test
+    public void testDontAddClientIdIfManuallyAdded() throws Exception {
+        final Request req = Request.to("/foo").with("client_id", "12345");
+        assertThat(api.addClientIdIfNecessary(req).toUrl(), equalTo("/foo?client_id=12345"));
+    }
+
+    @Test
     public void testAddDefaultParameters() throws Exception {
-        layer.addHttpResponseRule("/foo", "Hi");
-        layer.addHttpResponseRule("/foo?t=1", "Hi t1");
-        layer.addHttpResponseRule("/foo?t=2", "Hi t2");
+        layer.addHttpResponseRule("/foo?client_id=" + TEST_CLIENT_ID, "Hi");
+        layer.addHttpResponseRule("/foo?t=1&client_id=" + TEST_CLIENT_ID, "Hi t1");
+        layer.addHttpResponseRule("/foo?t=2&client_id=" + TEST_CLIENT_ID, "Hi t2");
 
         final Request foo = Request.to("/foo");
         for (int i = 0; i < 1000; i++) {

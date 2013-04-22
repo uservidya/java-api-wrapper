@@ -16,19 +16,19 @@ import java.util.Map;
 public class Token implements Serializable {
     private static final long serialVersionUID = 766168501082045382L;
 
-    public static final String ACCESS_TOKEN  = "access_token";
-    public static final String REFRESH_TOKEN = "refresh_token";
-    public static final String SCOPE         = "scope";
-    public static final String EXPIRES_IN    = "expires_in";
-
     public static final String SCOPE_DEFAULT      = "*";
 
     /** Special scope for signup / password recovery */
     public static final String SCOPE_SIGNUP       = "signup";
-    public static final String SCOPE_PLAYCOUNT    = "playcount";
 
+    public static final String SCOPE_PLAYCOUNT    = "playcount";
     /** Don't expire access token - returned tokens won't include a refresh token */
     public static final String SCOPE_NON_EXPIRING = "non-expiring";
+
+    private static final String ACCESS_TOKEN  = "access_token";
+    private static final String REFRESH_TOKEN = "refresh_token";
+    private static final String SCOPE         = "scope";
+    private static final String EXPIRES_IN    = "expires_in";
 
     // XXX these should be private
     public String access, refresh, scope;
