@@ -530,6 +530,12 @@ public class ApiWrapperTest {
     }
 
     @Test
+    public void testDontAddClientIdIfManuallyAdded() throws Exception {
+        final Request req = Request.to("/foo").with("client_id", "12345");
+        assertThat(api.addClientIdIfNecessary(req).toUrl(), equalTo("/foo?client_id=12345"));
+    }
+
+    @Test
     public void testAddDefaultParameters() throws Exception {
         layer.addHttpResponseRule("/foo?client_id=" + TEST_CLIENT_ID, "Hi");
         layer.addHttpResponseRule("/foo?t=1&client_id=" + TEST_CLIENT_ID, "Hi t1");
