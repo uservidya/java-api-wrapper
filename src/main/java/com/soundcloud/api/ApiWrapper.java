@@ -1,13 +1,5 @@
 package com.soundcloud.api;
 
-import static com.soundcloud.api.AuthParams.CLIENT_ID;
-import static com.soundcloud.api.AuthParams.CLIENT_SECRET;
-import static com.soundcloud.api.AuthParams.CODE;
-import static com.soundcloud.api.AuthParams.GRANT_TYPE;
-import static com.soundcloud.api.AuthParams.REDIRECT_URI;
-import static com.soundcloud.api.AuthParams.RESPONSE_TYPE;
-import static com.soundcloud.api.AuthParams.USERNAME;
-
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
 import org.apache.http.HeaderElement;
@@ -147,11 +139,11 @@ public class ApiWrapper implements CloudAPI, Serializable {
             throw new IllegalArgumentException("username or password is null");
         }
         final Request request = addScope(Request.to(Endpoints.TOKEN).with(
-                GRANT_TYPE, CloudAPI.PASSWORD,
+                GRANT_TYPE, PASSWORD,
                 CLIENT_ID, mClientId,
                 CLIENT_SECRET, mClientSecret,
                 USERNAME, username,
-                AuthParams.PASSWORD, password), scopes);
+                PASSWORD, password), scopes);
         mToken = requestToken(request);
         return mToken;
     }
@@ -205,20 +197,20 @@ public class ApiWrapper implements CloudAPI, Serializable {
     @Override public Token refreshToken() throws IOException {
         if (mToken == null || mToken.refresh == null) throw new IllegalStateException("no refresh token available");
         mToken = requestToken(Request.to(Endpoints.TOKEN).with(
-                GRANT_TYPE, CloudAPI.REFRESH_TOKEN,
+                GRANT_TYPE, REFRESH_TOKEN,
                 CLIENT_ID, mClientId,
                 CLIENT_SECRET, mClientSecret,
-                AuthParams.REFRESH_TOKEN, mToken.refresh));
+                REFRESH_TOKEN, mToken.refresh));
         return mToken;
     }
 
     @Override public Token exchangeOAuth1Token(String oauth1AccessToken) throws IOException {
         if (oauth1AccessToken == null) throw new IllegalArgumentException("need access token");
         mToken = requestToken(Request.to(Endpoints.TOKEN).with(
-                GRANT_TYPE, OAUTH1_TOKEN,
+                GRANT_TYPE, OAUTH1_TOKEN_GRANT_TYPE,
                 CLIENT_ID, mClientId,
                 CLIENT_SECRET, mClientSecret,
-                AuthParams.REFRESH_TOKEN, oauth1AccessToken));
+                REFRESH_TOKEN, oauth1AccessToken));
         return mToken;
     }
 
@@ -241,8 +233,8 @@ public class ApiWrapper implements CloudAPI, Serializable {
         final Request req = Request.to(options.length == 0 ? Endpoints.CONNECT : options[0]).with(
                 REDIRECT_URI, mRedirectUri,
                 CLIENT_ID, mClientId,
-                RESPONSE_TYPE, "code");
-        if (options.length == 2) req.add("scope", options[1]);
+                RESPONSE_TYPE, CODE);
+        if (options.length == 2) req.add(SCOPE, options[1]);
         return getURI(req, false, true);
     }
 
@@ -677,7 +669,7 @@ public class ApiWrapper implements CloudAPI, Serializable {
                 scope.append(scopes[i]);
                 if (i < scopes.length-1) scope.append(" ");
             }
-            request.add("scope", scope.toString());
+            request.add(SCOPE, scope.toString());
         }
         return request;
     }

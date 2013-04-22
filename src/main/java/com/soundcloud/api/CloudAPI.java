@@ -15,24 +15,31 @@ import java.net.URI;
  * @see ApiWrapper
  */
 public interface CloudAPI {
+    // OAuth2 parameters
+    String GRANT_TYPE       = "grant_type";
+    String CLIENT_ID        = "client_id";
+    String CLIENT_SECRET    = "client_secret";
+    String USERNAME         = "username";
+    String REDIRECT_URI     = "redirect_uri";
+    String CODE             = "code";
+    String RESPONSE_TYPE    = "response_type";
+    String SCOPE            = "scope";
+
     // standard oauth2 grant types
     String PASSWORD           = "password";
     String AUTHORIZATION_CODE = "authorization_code";
     String REFRESH_TOKEN      = "refresh_token";
     String CLIENT_CREDENTIALS = "client_credentials";
 
-    // custom soundcloud
-    String OAUTH1_TOKEN       = "oauth1_token";
-
-    // oauth2 extension grant types
-    String FACEBOOK_GRANT_TYPE = "urn:soundcloud:oauth2:grant-type:facebook&access_token=";
+    // custom
+    String OAUTH1_TOKEN_GRANT_TYPE  = "oauth1_token"; // soundcloud
+    String FACEBOOK_GRANT_TYPE      = "urn:soundcloud:oauth2:grant-type:facebook&access_token="; // oauth2 extension
 
     // other constants
     String REALM              = "SoundCloud";
     String OAUTH_SCHEME       = "oauth";
     String VERSION            = "1.2.1";
     String USER_AGENT         = "SoundCloud Java Wrapper ("+VERSION+")";
-
 
     /**
      * Request a token using <a href="http://tools.ietf.org/html/draft-ietf-oauth-v2-10#section-4.1.2">
