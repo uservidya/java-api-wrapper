@@ -53,8 +53,8 @@ import java.net.URI;
 
 public class ApiWrapperTest {
     private ApiWrapper api;
-    private static String TEST_CLIENT_ID        = "testClientId";
-    private static String TEST_CLIENT_SECRET    = "testClientSecret";
+    private final static String TEST_CLIENT_ID        = "testClientId";
+    private final static String TEST_CLIENT_SECRET    = "testClientSecret";
     final FakeHttpLayer layer = new FakeHttpLayer();
     @Before
     public void setup() {
