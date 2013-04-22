@@ -1,6 +1,8 @@
 package com.soundcloud.api;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;

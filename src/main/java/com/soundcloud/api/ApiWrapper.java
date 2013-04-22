@@ -1,6 +1,12 @@
 package com.soundcloud.api;
 
-import static com.soundcloud.api.AuthParams.*;
+import static com.soundcloud.api.AuthParams.CLIENT_ID;
+import static com.soundcloud.api.AuthParams.CLIENT_SECRET;
+import static com.soundcloud.api.AuthParams.CODE;
+import static com.soundcloud.api.AuthParams.GRANT_TYPE;
+import static com.soundcloud.api.AuthParams.REDIRECT_URI;
+import static com.soundcloud.api.AuthParams.RESPONSE_TYPE;
+import static com.soundcloud.api.AuthParams.USERNAME;
 
 import org.apache.http.ConnectionReuseStrategy;
 import org.apache.http.Header;
