@@ -1,5 +1,7 @@
-## 1.2.2 TBD
+## 1.3.0 2013-04-22
 
+  * Default to UTF-8 for string payloads
+  * Include client_id for unauthenticated requests
   * Support gzip encoding
   * Fixed non-english request formatting issue
   * Preserve query parameters for 'withContent`

@@ -11,7 +11,7 @@ Bump version constants in
  * build.gradle
  * src/main/java/com/soundcloud/api/package-info.java
  * src/main/java/com/soundcloud/api/CloudAPI.java
- * README.md (javadoc, jar-all)
+ * README.md (javadoc)
 
 Regenerate + publish javadoc:
 

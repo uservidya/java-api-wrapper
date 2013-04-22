@@ -126,8 +126,6 @@ The wrapper ships with a few examples in `src/examples/java`:
   * [FacebookConnect][] obtain an access token via Facebook login
 
 You can use gradle tasks to compile and run these examples with one command.
-If you don't want to use gradle there is also a precompiled jar with all
-dependencies available ([jar-all][]).
 
 First create a wrapper and remember to substitute all credentials with real ones
 ([register an app][register-app] if you need client_id/secret):
@@ -254,7 +252,7 @@ See LICENSE for details.
 [Apache HttpClient]: http://hc.apache.org/httpcomponents-client-ga/
 [HttpMime]: http://hc.apache.org/httpcomponents-client-ga/httpmime
 [json-java]: http://json.org/java/
-[javadoc]: http://soundcloud.github.com/java-api-wrapper/javadoc/1.2.0/com/soundcloud/api/package-summary.html
+[javadoc]: http://soundcloud.github.com/java-api-wrapper/javadoc/1.3.0/com/soundcloud/api/package-summary.html
 [soundcloudapi-java]: http://code.google.com/p/soundcloudapi-java/
 [soundcloudapi-java-annouce]: http://blog.soundcloud.com/2010/01/08/java-wrapper/
 [CreateWrapper]: https://github.com/soundcloud/java-api-wrapper/blob/master/src/examples/java/com/soundcloud/api/examples/CreateWrapper.java
@@ -266,7 +264,6 @@ See LICENSE for details.
 [SoundCloud Android]: https://play.google.com/store/apps/details?id=com.soundcloud.android
 [register-app]: http://soundcloud.com/you/apps/new
 [Apache Maven]: http://maven.apache.org/
-[jar-all]: https://github.com/downloads/soundcloud/java-api-wrapper/java-api-wrapper-1.2.0-all.jar
 [downloads]: https://github.com/soundcloud/java-api-wrapper/archives/master
 [snapshots]: https://oss.sonatype.org/content/repositories/snapshots/com/soundcloud/java-api-wrapper/
 [releases]: https://oss.sonatype.org/content/repositories/releases/com/soundcloud/java-api-wrapper/
