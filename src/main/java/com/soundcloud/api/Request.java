@@ -47,6 +47,8 @@ import java.util.Map;
  *  </code>
  */
 public class Request implements Iterable<NameValuePair> {
+    public static final String UTF_8 = "UTF-8";
+
     private List<NameValuePair> mParams = new ArrayList<NameValuePair>(); // XXX should probably be lazy
     private Map<String, Attachment> mFiles;
 
@@ -82,10 +84,10 @@ public class Request implements Iterable<NameValuePair> {
                     try {
                         if (kv.length == 2) {
                             mParams.add(new BasicNameValuePair(
-                                    URLDecoder.decode(kv[0], "UTF-8"),
-                                    URLDecoder.decode(kv[1], "UTF-8")));
+                                    URLDecoder.decode(kv[0], UTF_8),
+                                    URLDecoder.decode(kv[1], UTF_8)));
                         } else if (kv.length == 1) {
-                            mParams.add(new BasicNameValuePair(URLDecoder.decode(kv[0], "UTF-8"), null));
+                            mParams.add(new BasicNameValuePair(URLDecoder.decode(kv[0], UTF_8), null));
                         }
                     } catch (UnsupportedEncodingException ignored) {
                     }
@@ -215,7 +217,7 @@ public class Request implements Iterable<NameValuePair> {
      * list of parameters in an HTTP PUT or HTTP POST.
      */
     public String queryString() {
-        return format(mParams, "UTF-8");
+        return format(mParams, UTF_8);
     }
 
     /**
@@ -317,7 +319,7 @@ public class Request implements Iterable<NameValuePair> {
      */
     public Request withContent(String content, String contentType) {
         try {
-            StringEntity stringEntity = new StringEntity(content);
+            StringEntity stringEntity = new StringEntity(content, UTF_8);
             if (contentType != null) {
                 stringEntity.setContentType(contentType);
             }
@@ -377,7 +379,7 @@ public class Request implements Iterable<NameValuePair> {
                 HttpEntityEnclosingRequestBase enclosingRequest =
                         (HttpEntityEnclosingRequestBase) request;
 
-                final Charset charSet = java.nio.charset.Charset.forName("UTF-8");
+                final Charset charSet = java.nio.charset.Charset.forName(UTF_8);
                 if (isMultipart()) {
                     MultipartEntity multiPart = new MultipartEntity(
                             HttpMultipartMode.BROWSER_COMPATIBLE,  // XXX change this to STRICT once rack on server is upgraded

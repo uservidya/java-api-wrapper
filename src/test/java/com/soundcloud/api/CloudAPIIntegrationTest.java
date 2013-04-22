@@ -142,7 +142,7 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
         String playlistUrl = location.getValue();
         assertNotNull(playlistUrl);
 
-        String title = "a new title:" + System.currentTimeMillis();
+        String title = "a new tîtle:" + System.currentTimeMillis();
         JSONObject json = createJSONPlaylist(title, CHE_FLUTE_TRACK_ID, FLICKERMOOD_TRACK_ID);
 
         resp = api.put(Request.to(playlistUrl)
@@ -184,9 +184,8 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
 
     @Test(expected = CloudAPI.InvalidTokenException.class)
     public void shouldGetATokenUsingExtensionGrantTypes() throws Exception {
-        // TODO
-        String fbToken = "fbToken";
-        api.extensionGrantType(CloudAPI.FACEBOOK_GRANT_TYPE +fbToken);
+        // TODO ?
+        api.extensionGrantType(CloudAPI.FACEBOOK_GRANT_TYPE + "fbToken");
     }
 
     @Test

@@ -107,9 +107,9 @@ public class Stream implements Serializable {
             String[] kv = s.split("=", 2);
             if (kv != null && kv.length == 2) {
                 try {
-                    String name = URLDecoder.decode(kv[0], "UTF-8");
+                    String name = URLDecoder.decode(kv[0], Request.UTF_8);
                     if (EXPIRES.equalsIgnoreCase(name)) {
-                        String value = URLDecoder.decode(kv[1], "UTF-8");
+                        String value = URLDecoder.decode(kv[1], Request.UTF_8);
                         try {
                             return Long.parseLong(value) * 1000L;
                         } catch (NumberFormatException ignored) {

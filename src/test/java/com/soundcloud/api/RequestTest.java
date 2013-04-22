@@ -277,6 +277,19 @@ public class RequestTest {
     }
 
     @Test
+    public void shouldUseUTF8AsDefaultEncodingForStringPayloads() throws Exception {
+        HttpPost request = Request.to("/too")
+                .withContent("{ string:\"îøüöéí\" }", "application/json")
+                .buildRequest(HttpPost.class);
+
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        request.getEntity().writeTo(os);
+
+        String decoded = os.toString("UTF-8");
+        assertThat("{ string:\"îøüöéí\" }", equalTo(decoded));
+    }
+
+    @Test
     public void shouldBuildARequestWithContentAndPreserveQueryParameters() throws Exception {
         HttpPost post = Request
                 .to("/foo")
