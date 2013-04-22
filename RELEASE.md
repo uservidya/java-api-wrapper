@@ -13,11 +13,7 @@ Bump version constants in
  * src/main/java/com/soundcloud/api/CloudAPI.java
  * README.md (javadoc)
 
-Regenerate + publish javadoc:
-
-    $ ./update_javadoc.sh
-
-Regenerate pom.xml
+Regenerate pom.xml (only if build.gradle has changed)
 
     $ gradle writePom
 
@@ -26,8 +22,8 @@ This doesn't work properly at the moment - use `gradle uploadArchive` and copy
 
 ## Releasing to Sonatype OSS (staging)
 
-    (make sure there are no uncommitted changes in the repo)
-    $ mvn -Dresume=false release:prepare # tag repo, bump pom.xml (needs SNAPSHOT tag in pom)
+    (make sure there are no uncommitted changes in the repo and pom has SNAPSHOT tag)
+    $ mvn -Dresume=false release:prepare # tag repo, bump pom.xml
     $ mvn release:perform -Darguments="-Dgpg.keyname=jan@soundcloud.com -Dgpg.passphrase="
 
 This will build and sign all artifcats and upload them to the staging server.
@@ -38,6 +34,11 @@ will check if the deployment is complete and properly signed, then create a
 staging repository which can be used for testing. Once everything works you
 select "Release" to actually release it to the [release repo][]. The release
 repo is synced with [Maven Central][].
+
+Regenerate + publish javadoc (no SNAPSHOT tag in build.gradle):
+
+    $ ./update_javadoc.sh
+
 
 ## Releasing snapshot versions
 
