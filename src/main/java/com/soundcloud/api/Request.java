@@ -137,16 +137,38 @@ public class Request implements Iterable<NameValuePair> {
     }
 
     /**
-     * Adds a key value pair
+     * Adds a key/value pair.
+     * <pre>
+     * Request r = new Request.to("/foo")
+     *    .add("singleParam", "value")
+     *    .add("multiParam", new String[] { "1", "2", "3" })
+     *    .add("singleParamWithOutValue", null);
+     * </pre>
+     *
      * @param name  the name
-     * @param value the value
+     * @param value the value to set, will be obtained via {@link String#valueOf(boolean)}.
+     *              If null, only the parameter is set.
+     *              It can also be a collection or array, in which case all elements are added as query parameters
      * @return this
      */
     public Request add(String name, Object value) {
-        mParams.add(new BasicNameValuePair(name, String.valueOf(value)));
+        if (value instanceof Iterable) {
+            for (Object o : ((Iterable<?>)value)) {
+                addParam(name, o);
+            }
+        } else if (value instanceof Object[]) {
+            for (Object o : (Object[])value) {
+                addParam(name, o);
+            }
+        } else {
+            addParam(name, value);
+        }
         return this;
     }
 
+    private void addParam(String name, Object param) {
+        mParams.add(new BasicNameValuePair(name, param == null ? null : String.valueOf(param)));
+    }
 
     /**
      * Sets a new parameter, overwriting previous value.

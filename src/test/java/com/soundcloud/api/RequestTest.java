@@ -31,6 +31,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.IllegalFormatException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -93,6 +94,34 @@ public class RequestTest {
 
         r.clear("foo");
         assertThat(r.queryString(), equalTo(""));
+    }
+
+    @Test
+    public void shouldAddParameter() throws Exception {
+        Request r = new Request();
+        r.add("param", "value");
+        assertThat(r.queryString(), equalTo("param=value"));
+    }
+
+    @Test
+    public void shouldAddOnlyParameterNameIfPassedNullValue() throws Exception {
+        Request r = new Request();
+        r.add("param", null);
+        assertThat(r.queryString(), equalTo("param"));
+    }
+
+    @Test
+    public void shouldAddAllContainedValuesIfPassedArrays() throws Exception {
+        Request r = new Request();
+        r.add("foo", new String[] { "1", "2"});
+        assertThat(r.queryString(), equalTo("foo=1&foo=2"));
+    }
+
+    @Test
+    public void shouldAddAllContainedValuesIfPassedIterable() throws Exception {
+        Request r = new Request();
+        r.add("foo", Arrays.asList("1", "2"));
+        assertThat(r.queryString(), equalTo("foo=1&foo=2"));
     }
 
     @Test
