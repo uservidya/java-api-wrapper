@@ -254,7 +254,16 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
 
     @Test
     public void shouldResolveNonApiStreamUrls() throws Exception {
+        testResolveNonApiStreamUrls();
+    }
+
+    @Test
+    public void shouldResolveNonApiStreamUrlsWithLogin() throws Exception {
         login();
+        testResolveNonApiStreamUrls();
+    }
+
+    private void testResolveNonApiStreamUrls() throws IOException {
         Stream resolved = api.resolveStreamUrl(MEDIA_LINK, false);
 
         assertThat(resolved.url, equalTo(MEDIA_LINK));
