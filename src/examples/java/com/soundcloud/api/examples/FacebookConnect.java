@@ -51,7 +51,7 @@ public class FacebookConnect {
         // start a web server to get the redirect information
         startServer(wrapper);
 
-        // note: on Android you would use a WebView instead an override 'shouldOverrideUrlLoading':
+        // note: on Android you would use a WebView instead and override 'shouldOverrideUrlLoading':
 
         /*
             WebView webView = (WebView) findViewById(R.id.webview);
@@ -63,6 +63,7 @@ public class FacebookConnect {
                         String error = result.getQueryParameter("error");
                         String code = result.getQueryParameter("code");
                     }
+                    return true;
                 }
             });
 
