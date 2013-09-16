@@ -110,6 +110,8 @@ public class ApiWrapper implements CloudAPI, Serializable {
     public static final long KEEPALIVE_TIMEOUT = 20 * 1000;
     /* maximum number of connections allowed */
     public static final int MAX_TOTAL_CONNECTIONS = 10;
+    /* spam response code from API */
+    public static final int STATUS_CODE_SPAM_WARNING = 429;
 
     /** debug request details to stderr */
     public boolean debugRequests;
