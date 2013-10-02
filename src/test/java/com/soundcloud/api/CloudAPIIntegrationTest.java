@@ -273,26 +273,6 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
         assertThat(resolved.eTag, equalTo("\"5eeb63b73f99ff2de44a60441d421d2a\""));
     }
 
-    @Test @Ignore /* playcounts not deployed on sandbox */
-    public void shouldResolveStreamUrlAndSkipPlaycountLogging() throws Exception {
-        // need the playcount scope for this to work
-        assertTrue(login(Token.SCOPE_PLAYCOUNT).scoped(Token.SCOPE_PLAYCOUNT));
-
-        long trackId = api.resolve(TRACK_PERMALINK);
-
-        int count = Http.getJSON(api.get(Request.to("/tracks/"+trackId))).getInt("playback_count");
-        api.resolveStreamUrl("https://api.soundcloud.com/tracks/"+trackId+"/stream", false);
-        int count2 = Http.getJSON(api.get(Request.to("/tracks/"+trackId))).getInt("playback_count");
-
-        assertTrue(String.format("%d !> %d", count2, count), count2 > count);
-
-        // resolve again, this time skipping count
-        api.resolveStreamUrl("https://api.soundcloud.com/tracks/"+trackId+"/stream", true);
-
-        int count3 = Http.getJSON(api.get(Request.to("/tracks/"+trackId))).getInt("playback_count");
-        assertTrue(String.format("%d != %d", count3, count2), count3 == count2);
-    }
-
     @Test
     public void shouldThrowResolverExceptionWhenStreamCannotBeResolved() throws Exception {
         login();
@@ -461,16 +441,6 @@ public class CloudAPIIntegrationTest implements Params.Track, Endpoints {
         start.await();
         end.await();
         System.err.println("all threads finished");
-    }
-
-    @Test @Ignore
-    public void updateMyDetails() throws Exception {
-        Request updateMe = Request.to(MY_DETAILS).with(
-                Params.User.WEBSITE, "http://mywebsite.com")
-                .withFile(Params.User.AVATAR, new File(getClass().getResource("cat.jpg").getFile()));
-
-        HttpResponse resp = api.put(updateMe);
-        assertThat(resp.getStatusLine().getStatusCode(), is(200));
     }
 
     @SuppressWarnings({"UnusedDeclaration"})

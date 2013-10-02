@@ -469,16 +469,17 @@ public class ApiWrapper implements CloudAPI, Serializable {
         HttpResponse resp = get(Request.to(Endpoints.RESOLVE).with("url", url));
         if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_MOVED_TEMPORARILY) {
             Header location = resp.getFirstHeader("Location");
-            if (location != null) {
-                String s = location.getValue();
-                if (s.contains("/")) {
+            if (location != null && location.getValue() != null) {
+                final String path = URI.create(location.getValue()).getPath();
+                if (path != null && path.contains("/")) {
                     try {
-                        return Integer.parseInt(s.substring(s.lastIndexOf("/") + 1, s.length()));
+                      final String id = path.substring(path.lastIndexOf("/") + 1);
+                      return Integer.parseInt(id);
                     } catch (NumberFormatException e) {
                         throw new ResolverException(e, resp);
                     }
                 } else {
-                    throw new ResolverException("Invalid string:"+s, resp);
+                    throw new ResolverException("Invalid string:"+path, resp);
                 }
             } else {
                 throw new ResolverException("No location header", resp);
@@ -613,8 +614,7 @@ public class ApiWrapper implements CloudAPI, Serializable {
     }
 
     protected Request addClientIdIfNecessary(Request req) {
-        return (mToken != EMPTY_TOKEN || req.getParams().containsKey(CLIENT_ID)) ?
-                req : new Request(req).add(CLIENT_ID, mClientId);
+        return req.getParams().containsKey(CLIENT_ID) ? req : new Request(req).add(CLIENT_ID, mClientId);
     }
 
     protected void logRequest( Class<? extends HttpRequestBase> reqType, Request request) {

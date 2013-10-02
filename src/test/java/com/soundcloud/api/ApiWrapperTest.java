@@ -531,9 +531,9 @@ public class ApiWrapperTest {
     }
 
     @Test
-    public void testDontAddClientIdWithToken() throws Exception {
+    public void testShouldAlwaysAddClientIdEvenWhenAuthenticated() throws Exception {
         api.setToken(new Token("access", "refresh"));
-        assertThat(api.addClientIdIfNecessary(Request.to("/foo")).toUrl(), equalTo("/foo"));
+        assertThat(api.addClientIdIfNecessary(Request.to("/foo")).toUrl(), equalTo("/foo?client_id=" + TEST_CLIENT_ID));
     }
 
     @Test
