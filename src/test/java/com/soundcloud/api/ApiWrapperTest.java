@@ -119,22 +119,6 @@ public class ApiWrapperTest {
     }
 
     @Test
-    public void exchangeOAuth1Token() throws Exception {
-        layer.addPendingHttpResponse(200, "{\n" +
-                "  \"access_token\":  \"04u7h-4cc355-70k3n\",\n" +
-                "  \"expires_in\":    3600,\n" +
-                "  \"scope\":         \"*\",\n" +
-                "  \"refresh_token\": \"04u7h-r3fr35h-70k3n\"\n" +
-                "}");
-        api.exchangeOAuth1Token("oldtoken");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void exchangeOAuth1TokenWithEmptyTokenShouldThrow() throws Exception {
-        api.exchangeOAuth1Token(null);
-    }
-
-    @Test
     public void shouldGetTokensWhenLoggingIn() throws Exception {
         layer.addPendingHttpResponse(200, "{\n" +
                 "  \"access_token\":  \"04u7h-4cc355-70k3n\",\n" +

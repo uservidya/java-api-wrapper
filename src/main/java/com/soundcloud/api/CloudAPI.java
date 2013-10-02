@@ -108,17 +108,6 @@ public interface CloudAPI {
     Token refreshToken() throws IOException;
 
     /**
-     * Exchange an OAuth1 Token for new OAuth2 tokens. The old OAuth1 token will be expired if
-     * the exchange is successful.
-     *
-     * @param oauth1AccessToken a valid OAuth1 access token, registered with the same client
-     * @return a valid token
-     * @throws IOException IO/Error
-     * @throws InvalidTokenException Token error
-     */
-    Token exchangeOAuth1Token(String oauth1AccessToken) throws IOException;
-
-    /**
      * This method should be called when the token was found to be invalid.
      * Also replaces the current token, if there is one available.
      * @return an alternative token, or null if none available

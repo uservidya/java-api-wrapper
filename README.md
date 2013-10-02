@@ -44,18 +44,6 @@ HttpResponse resp =
              .withFile("user[avatar_data]", new File("flute.jpg")));
 ```
 
-## Migrating from OAuth1
-
-If your app uses OAuth1 and already has users with access tokens
-you can easily migrate to OAuth2 without requiring anybody to reauthenticate:
-
-```java
-Token token = wrapper.exchangeOAuth1Token("validoauth1token");
-```
-
-Note that this is specific to SoundCloud and not part of the current OAuth2
-draft.
-
 ## Refresh tokens
 
 OAuth2 access tokens are only valid for a certain amount of time (usually 1h)
